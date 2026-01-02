@@ -114,17 +114,39 @@ export function registerRoutes(app: Express): void {
         }
       }
 
-      // Library Card ID login (password not required)
+      // Library Card ID login
       if (libraryCardId) {
-        const cardApp = await storage.getLibraryCardByCardNumber(libraryCardId);
-        if (!cardApp) {
-          return res.status(401).json({ error: "Invalid library card ID" });
+        if (!password) {
+          return res.status(401).json({ error: "Password is required for library card login" });
         }
 
-        // Check if card is approved (case-insensitive)
+        const cardApp = await storage.getLibraryCardByCardNumber(libraryCardId);
+
+        // generic error message for security
+        const invalidCredentialsMsg = "Write correct details";
+
+        if (!cardApp) {
+          return res.status(401).json({ error: invalidCredentialsMsg });
+        }
+
+        // Verify password first
+        if (cardApp.password) {
+          const valid = await bcrypt.compare(password, cardApp.password);
+          if (!valid) {
+            return res.status(401).json({ error: invalidCredentialsMsg });
+          }
+        } else {
+          // Allow legacy login without password? No, user implied password logic.
+          // But if no password set, we can't verify. 
+          // Let's assume password is required now.
+          return res.status(401).json({ error: "No password set. Please contact library." });
+        }
+
+        // Credentials are correct, now check status
         const status = cardApp.status?.toLowerCase() || "pending";
+
         if (status === "pending") {
-          return res.status(401).json({ error: "Your library card application is under review. Please wait for approval from the library." });
+          return res.status(401).json({ error: "Wait for approval by library" });
         }
 
         if (status === "rejected") {
@@ -132,6 +154,7 @@ export function registerRoutes(app: Express): void {
         }
 
         if (status !== "approved") {
+          // catches other statuses or empty
           return res.status(401).json({ error: "Library card is not active." });
         }
 
@@ -551,7 +574,8 @@ export function registerRoutes(app: Express): void {
         addressStreet,
         addressCity,
         addressState,
-        addressZip
+        addressZip,
+        password: applicationPassword
       } = req.body;
 
       const application = await storage.createLibraryCardApplication({
@@ -565,10 +589,9 @@ export function registerRoutes(app: Express): void {
         field,
         rollNo,
         class: studentClass || studentClassAlt,
-        addressStreet,
-        addressCity,
         addressState,
         addressZip,
+        password: applicationPassword ? await bcrypt.hash(applicationPassword, 10) : null,
         status: "pending"
       });
       res.json(application);

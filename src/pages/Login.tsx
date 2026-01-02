@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Mail, Lock, LogIn, AlertCircle, Key, CreditCard } from 'lucide-react';
+import { Mail, Lock, LogIn, AlertCircle, Key, CreditCard, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -12,6 +12,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [useLibraryCard, setUseLibraryCard] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const { login, user, isAdmin } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
@@ -29,20 +30,20 @@ const Login: React.FC = () => {
     setLoading(true);
 
     if (useLibraryCard) {
-      // Library Card login - ONLY Card ID required, NO password
-      if (!formData.libraryCardId || formData.libraryCardId.trim() === '') {
-        setError('Please enter your Library Card ID.');
+      if (!formData.libraryCardId || !formData.password) {
+        setError('Please enter both Library Card ID and Password.');
         setLoading(false);
         return;
       }
-      const result = await login(undefined, undefined, undefined, formData.libraryCardId);
+
+      const result = await login(undefined, formData.password, undefined, formData.libraryCardId);
+
       if (!result.success) {
-        // Map backend errors to user-friendly messages for the 4 cases
         const errorMessage = result.error || 'Login failed';
-        if (errorMessage.toLowerCase().includes('invalid library card id')) {
-          setError('Invalid Library Card ID. Please enter a correct ID.');
-        } else if (errorMessage.toLowerCase().includes('under review')) {
-          setError('Your library card is pending. Please wait for approval from the library.');
+        if (errorMessage.toLowerCase().includes('write correct details')) {
+          setError('Write correct details');
+        } else if (errorMessage.toLowerCase().includes('wait for approval by library')) {
+          setError('Wait for approval by library');
         } else if (errorMessage.toLowerCase().includes('rejected')) {
           setError('Your library card application was rejected.');
         } else if (errorMessage.toLowerCase().includes('not active')) {
@@ -57,6 +58,7 @@ const Login: React.FC = () => {
         setLoading(false);
         return;
       }
+
       const result = await login(formData.email, formData.password, formData.secretKey || undefined);
       if (!result.success) {
         setError(result.error || 'Login failed');
@@ -124,6 +126,9 @@ const Login: React.FC = () => {
 
           {!useLibraryCard ? (
             <>
+              <p className="text-sm text-center text-muted-foreground mb-4 bg-muted/30 p-2 rounded-lg border border-border/50">
+                Staff/Visitor login through their Email & Password
+              </p>
               <div>
                 <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
                   <Mail size={16} />
@@ -139,6 +144,9 @@ const Login: React.FC = () => {
             </>
           ) : (
             <>
+              <p className="text-sm text-center text-muted-foreground mb-4 bg-muted/30 p-2 rounded-lg border border-border/50">
+                Students login through their Card ID & Password
+              </p>
               <div>
                 <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
                   <CreditCard size={16} />
@@ -154,22 +162,28 @@ const Login: React.FC = () => {
             </>
           )}
 
-          {!useLibraryCard && (
-            <>
-              <div>
-                <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
-                  <Lock size={16} />
-                  Password
-                </label>
-                <Input
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="••••••••"
-                />
-              </div>
-            </>
-          )}
+          <div>
+            <label className="text-sm font-medium text-foreground flex items-center gap-2 mb-2">
+              <Lock size={16} />
+              {useLibraryCard ? 'Card Login Password' : 'Password'}
+            </label>
+            <div className="relative">
+              <Input
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                placeholder="••••••••"
+                className="pr-10"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+              >
+                {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+              </button>
+            </div>
+          </div>
 
           {!useLibraryCard && (
             <div>

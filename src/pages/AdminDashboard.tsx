@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Users, BookOpen, CreditCard, LogOut, Mail, Gift, Trash2, CheckCircle, Download, BarChart3, RefreshCw, FileText, Archive, Book, Eye } from 'lucide-react';
+import { Users, BookOpen, CreditCard, LogOut, Mail, Gift, Trash2, CheckCircle, Download, BarChart3, RefreshCw, FileText, Archive, Book, Eye, Shield, Calendar, ArrowRight, MoreVertical, Clock } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
@@ -875,1143 +875,1219 @@ const AdminDashboard: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-background pt-20">
-      {/* Admin Header - shown by Header component */}
+    <div className="min-h-screen bg-neutral-50/50 pt-16 flex">
+      {/* Sticky Sidebar */}
+      <aside className="w-64 bg-white border-r border-neutral-200 sticky top-16 h-[calc(100vh-64px)] overflow-y-auto hidden lg:block z-30">
+        <div className="p-6">
+          <div className="flex items-center gap-2 mb-8 px-2">
+            <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
+              <Shield className="text-white" size={18} />
+            </div>
+            <h2 className="font-bold text-neutral-900 tracking-tight">Admin Panel</h2>
+          </div>
 
-      {/* Module Navigation Below Navbar */}
-      <div className="bg-card border-b border-border sticky top-20 z-40 shadow-sm">
-        <div className="max-w-7xl mx-auto px-4 py-4">
-          <div className="flex flex-wrap gap-2 md:gap-3">
+          <h2 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest mb-4 px-2">Main Menu</h2>
+          <nav className="space-y-1">
             {modules.map(module => {
               const Icon = module.icon;
+              const isActive = activeModule === module.id;
               return (
-                <motion.button
+                <button
                   key={module.id}
                   onClick={() => handleModuleChange(module.id)}
-                  whileHover={{ scale: 1.02 }}
-                  whileTap={{ scale: 0.98 }}
-                  className={`flex items-center gap-2 px-4 py-2 rounded-lg transition-all font-medium text-sm ${activeModule === module.id
-                    ? 'bg-primary text-primary-foreground shadow-md'
-                    : 'bg-muted text-foreground hover:bg-muted/80'
+                  className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl transition-all duration-200 group ${isActive
+                    ? 'bg-primary/10 text-primary shadow-sm ring-1 ring-primary/20'
+                    : 'text-neutral-500 hover:bg-neutral-50 hover:text-neutral-900'
                     }`}
                 >
-                  <Icon size={18} />
-                  {module.label}
-                  <span className="ml-1 text-xs bg-background/20 px-2 py-0.5 rounded-full">
-                    {module.count}
-                  </span>
-                </motion.button>
+                  <div className="flex items-center gap-3">
+                    <Icon size={18} className={isActive ? 'text-primary' : 'text-neutral-400 group-hover:text-neutral-600'} />
+                    <span className={`text-sm ${isActive ? 'font-semibold' : 'font-medium'}`}>{module.label}</span>
+                  </div>
+                  {module.count > 0 && (
+                    <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold ${isActive ? 'bg-primary text-white' : 'bg-neutral-100 text-neutral-400'
+                      }`}>
+                      {module.count}
+                    </span>
+                  )}
+                </button>
               );
             })}
-          </div>
+          </nav>
         </div>
-      </div>
+      </aside>
 
-      {/* Main Content */}
-      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="max-w-7xl mx-auto p-4 md:p-8">
+      {/* Main Content Area */}
+      <main className="flex-1 min-w-0">
+        {/* Mobile Navigation */}
+        <div className="lg:hidden bg-white border-b border-neutral-200 sticky top-16 z-30 p-4 flex gap-2 overflow-x-auto scrollbar-hide">
+          {modules.map(module => {
+            const Icon = module.icon;
+            const isActive = activeModule === module.id;
+            return (
+              <button
+                key={module.id}
+                onClick={() => handleModuleChange(module.id)}
+                className={`flex-shrink-0 flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all ${isActive ? 'bg-primary text-white shadow-md' : 'bg-white text-neutral-500 border border-neutral-200'
+                  }`}
+              >
+                <Icon size={14} />
+                {module.label}
+              </button>
+            )
+          })}
+        </div>
 
-        {/* Messages Module */}
-        {activeModule === 'messages' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Contact Messages</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchMessages()}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(messages, 'Contact-Messages', 'messages')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Contact Messages Report', messages, 'messages')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
+        <motion.div
+          key={activeModule}
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="p-4 md:p-10 max-w-7xl mx-auto"
+        >
+
+          {/* Messages Module */}
+          {activeModule === 'messages' && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-4xl font-black text-neutral-900 tracking-tight">Contact Messages</h2>
+                  <p className="text-neutral-500 mt-2 font-medium">Manage inquiries and feedback from website visitors.</p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" size="lg" onClick={() => fetchMessages()} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <RefreshCw size={18} className="text-primary" /> Refresh
+                  </Button>
+                  <div className="h-10 w-[1px] bg-neutral-200 hidden md:block"></div>
+                  <Button variant="outline" size="lg" onClick={() => downloadExcel(messages, 'Contact-Messages', 'messages')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-emerald-600" /> Excel
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => downloadPDF('Contact Messages Report', messages, 'messages')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-rose-600" /> PDF
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            {loading ? (
-              <p className="text-muted-foreground">Loading...</p>
-            ) : messages.length === 0 ? (
-              <p className="text-muted-foreground">No messages yet</p>
-            ) : (
-              <div className="space-y-4">
-                {messages.map((msg: any) => (
-                  <Card key={msg.id} className="p-4">
-                    <div className="flex justify-between items-start gap-4">
-                      <div className="flex-1">
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-3 mb-3">
-                          <div><span className="font-semibold">From:</span> <span className="font-bold text-primary">{msg.name}</span></div>
-                          <div><span className="font-semibold">Email:</span> <span className="font-medium text-blue-600">{msg.email}</span></div>
-                          <div><span className="font-semibold">Subject:</span> <span className="font-bold">{msg.subject}</span></div>
-                          <div><span className="font-semibold">Date:</span> {new Date(msg.createdAt).toLocaleDateString()}</div>
+              {loading ? (
+                <div className="flex justify-center p-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>
+              ) : messages.length === 0 ? (
+                <Card className="p-20 text-center border-dashed bg-neutral-50/50">
+                  <Mail className="mx-auto h-12 w-12 text-neutral-300 mb-4" />
+                  <h3 className="text-xl font-bold text-neutral-900">No Messages Yet</h3>
+                  <p className="text-neutral-500 mt-2">When visitors contact you, they will appear here.</p>
+                </Card>
+              ) : (
+                <div className="grid grid-cols-1 xl:grid-cols-2 gap-6">
+                  {messages.map((msg: any) => (
+                    <Card key={msg.id} className="group p-6 rounded-3xl border-none bg-white shadow-sm hover:shadow-2xl hover:shadow-primary/5 transition-all duration-300 ring-1 ring-neutral-200/60 hover:ring-primary/20">
+                      <div className="flex flex-col h-full">
+                        <div className="flex justify-between items-start mb-6">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 rounded-2xl bg-primary/10 flex items-center justify-center font-black text-primary text-xl shadow-inner">
+                              {msg.name?.charAt(0).toUpperCase()}
+                            </div>
+                            <div>
+                              <h4 className="font-bold text-neutral-900 text-lg leading-tight">{msg.name}</h4>
+                              <p className="text-primary font-bold text-sm">{msg.email}</p>
+                            </div>
+                          </div>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => deleteMessage(msg.id)}
+                            className="text-neutral-300 hover:text-rose-600 hover:bg-rose-50 rounded-xl transition-colors"
+                            title="Delete Message"
+                          >
+                            <Trash2 size={20} />
+                          </Button>
                         </div>
-                        <p className="text-sm text-muted-foreground">{msg.message}</p>
+
+                        <div className="bg-neutral-50 p-5 rounded-2xl mb-6 flex-1 border border-neutral-100/80">
+                          <div className="flex items-center gap-2 mb-2">
+                            <span className="text-[10px] font-black uppercase tracking-widest text-neutral-400">Subject</span>
+                            <span className="h-[1px] flex-1 bg-neutral-200"></span>
+                          </div>
+                          <h5 className="font-black text-neutral-800 mb-3 text-base leading-snug">{msg.subject}</h5>
+                          <p className="text-neutral-600 text-sm leading-relaxed font-medium line-clamp-4 group-hover:line-clamp-none transition-all duration-300">{msg.message}</p>
+                        </div>
+
+                        <div className="flex items-center justify-between mt-auto pt-4 border-t border-neutral-50">
+                          <div className="flex items-center gap-2 text-neutral-400 font-bold text-xs">
+                            <Calendar size={14} />
+                            {new Date(msg.createdAt).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                          </div>
+                          <div className="text-[10px] font-black uppercase tracking-tighter bg-neutral-100 text-neutral-500 px-3 py-1.5 rounded-full">
+                            Contact Form
+                          </div>
+                        </div>
                       </div>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        onClick={() => deleteMessage(msg.id)}
-                        className="text-destructive"
-                        title="Delete"
-                      >
-                        <Trash2 size={18} />
-                      </Button>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Borrowed Books Module */}
+          {activeModule === 'books' && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-4xl font-black text-neutral-900 tracking-tight">Borrowed Books</h2>
+                  <p className="text-neutral-500 mt-2 font-medium">Monitor and manage book circulation across the library.</p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" size="lg" onClick={() => fetchBorrowedBooks()} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <RefreshCw size={18} className="text-primary" /> Refresh
+                  </Button>
+                  <div className="h-10 w-[1px] bg-neutral-200 hidden md:block"></div>
+                  <Button variant="outline" size="lg" onClick={() => downloadExcel(borrowedBooks, 'Borrowed-Books', 'borrowed-books')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-emerald-600" /> Excel
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => downloadPDF('Borrowed Books Report', borrowedBooks, 'borrowed-books')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-rose-600" /> PDF
+                  </Button>
+                </div>
+              </div>
+
+              {/* Borrowed Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                {[
+                  { label: 'Borrowed', value: borrowedCount, icon: BookOpen, color: 'primary' },
+                  { label: 'Returned', value: returnedCount, icon: CheckCircle, color: 'emerald' },
+                  { label: 'Total Records', value: borrowedBooks.length, icon: BarChart3, color: 'blue' },
+                  { label: 'Pending Users', value: users.length - (new Set(borrowedBooks.map((b: any) => b.userId)).size), icon: Users, color: 'amber' }
+                ].map((stat, i) => (
+                  <Card key={i} className="p-6 rounded-3xl border-none bg-white shadow-sm ring-1 ring-neutral-200/60 transition-all hover:shadow-md group">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">{stat.label}</p>
+                        <p className="text-3xl font-black text-neutral-900 mt-1">{stat.value}</p>
+                      </div>
+                      <div className={`p-3 rounded-2xl bg-${stat.color}-50 text-${stat.color}-600 group-hover:scale-110 transition-transform`}>
+                        <stat.icon size={24} />
+                      </div>
                     </div>
                   </Card>
                 ))}
               </div>
-            )}
-          </div>
-        )}
 
-        {/* Borrowed Books Module */}
-        {activeModule === 'books' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Borrowed Books Management</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleModuleChange('books')}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(borrowedBooks, 'Borrowed-Books', 'borrowed-books')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Borrowed Books Report', borrowedBooks, 'borrowed-books')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
+              {loading ? (
+                <div className="flex justify-center p-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>
+              ) : borrowedBooks.length === 0 ? (
+                <Card className="p-20 text-center border-dashed bg-neutral-50/50">
+                  <BookOpen className="mx-auto h-12 w-12 text-neutral-300 mb-4" />
+                  <h3 className="text-xl font-bold text-neutral-900">No Borrowed Records</h3>
+                  <p className="text-neutral-500 mt-2">Circulation history will appear here once books are borrowed.</p>
+                </Card>
+              ) : (
+                <Card className="rounded-3xl border-none bg-white shadow-xl shadow-neutral-200/40 overflow-hidden ring-1 ring-neutral-200/60">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-neutral-50 border-b border-neutral-100">
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Borrower Info</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Card & Serial</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Book Details</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Borrow Timeline</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Status</th>
+                          <th className="text-center py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-50">
+                        {borrowedBooks.map((book: any, idx: number) => (
+                          <tr key={book.id} className="group hover:bg-neutral-50/50 transition-colors">
+                            <td className="py-5 px-6">
+                              <div className="font-bold text-neutral-900">{book.borrowerName || '-'}</div>
+                              <div className="text-xs text-neutral-500 font-medium">{book.borrowerEmail || '-'}</div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="text-[10px] font-black text-neutral-400 uppercase tracking-tighter mb-1">SN #{idx + 1}</div>
+                              <span className="bg-neutral-100 px-2 py-1 rounded text-[10px] font-black text-neutral-600">{book.combinedId || '-'}</span>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="font-black text-primary text-sm">{book.bookTitle}</div>
+                              <div className="text-[10px] font-bold text-neutral-400 mt-0.5">{book.bookAuthor || 'Library Collection'}</div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="flex flex-col gap-1.5">
+                                <div className="flex items-center gap-2 text-[11px] font-bold text-neutral-600">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></div>
+                                  Out: {new Date(book.borrowDate).toLocaleDateString()}
+                                </div>
+                                <div className="flex items-center gap-2 text-[11px] font-bold text-rose-500">
+                                  <div className="w-1.5 h-1.5 rounded-full bg-rose-500"></div>
+                                  Due: {book.dueDate ? new Date(book.dueDate).toLocaleDateString() : (book.returnDate ? new Date(book.returnDate).toLocaleDateString() : '-')}
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <span className={`inline-flex items-center px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-tight ${book.status === 'borrowed'
+                                ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-200'
+                                : 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200 shadow-sm shadow-emerald-100'
+                                }`}>
+                                {book.status}
+                              </span>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {book.status === 'borrowed' && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => {
+                                      if (confirm('Mark this book as returned?')) {
+                                        fetch(`/api/book-borrows/${book.id}/return`, { method: 'PATCH', credentials: 'include' })
+                                          .then(res => {
+                                            if (res.ok) {
+                                              fetchBorrowedBooks();
+                                              toast({ title: 'Success', description: 'Book marked as returned.' });
+                                            }
+                                          });
+                                      }
+                                    }}
+                                    className="h-8 rounded-xl border-emerald-200 text-emerald-600 font-bold text-[10px] uppercase hover:bg-emerald-50"
+                                  >
+                                    Return
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => deleteBorrowedBook(book.id)}
+                                  className="h-8 w-8 text-neutral-300 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* Library Cards Module */}
+          {activeModule === 'library-cards' && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-4xl font-black text-neutral-900 tracking-tight">Library Cards</h2>
+                  <p className="text-neutral-500 mt-2 font-medium">Manage student library card applications and issuance.</p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" size="lg" onClick={() => fetchLibraryCards()} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <RefreshCw size={18} className="text-primary" /> Refresh
+                  </Button>
+                  <div className="h-10 w-[1px] bg-neutral-200 hidden md:block"></div>
+                  <Button variant="outline" size="lg" onClick={() => downloadExcel(libraryCards, 'Library-Cards', 'library-cards')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-emerald-600" /> Excel
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => downloadPDF('Library Card Applications Report', libraryCards, 'library-cards')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-rose-600" /> PDF
+                  </Button>
+                </div>
               </div>
-            </div>
 
-            {/* Statistics */}
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              <Card className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Currently Borrowed</p>
-                    <p className="text-2xl font-bold">{borrowedCount}</p>
-                  </div>
-                  <BookOpen size={24} className="text-primary" />
-                </div>
-              </Card>
-              <Card className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Returned</p>
-                    <p className="text-2xl font-bold">{returnedCount}</p>
-                  </div>
-                  <CheckCircle size={24} className="text-green-600" />
-                </div>
-              </Card>
-              <Card className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground">Total Records</p>
-                    <p className="text-2xl font-bold">{borrowedBooks.length}</p>
-                  </div>
-                  <BarChart3 size={24} className="text-blue-600" />
-                </div>
-              </Card>
-              <Card className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm text-muted-foreground">No Borrow Records</p>
-                    <p className="text-2xl font-bold">{users.length - (new Set(borrowedBooks.map((b: any) => b.userId)).size)}</p>
-                  </div>
-                  <Users size={24} className="text-orange-600" />
-                </div>
-              </Card>
-            </div>
+              {/* Library Card Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { label: 'Active Cards', value: libraryCards.filter(c => c.status === 'approved').length, icon: CheckCircle, color: 'emerald' },
+                  { label: 'Pending Apps', value: libraryCards.filter(c => !c.status || c.status === 'pending').length, icon: Clock, color: 'amber' },
+                  { label: 'Total Applications', value: libraryCards.length, icon: CreditCard, color: 'primary' }
+                ].map((stat, i) => (
+                  <Card key={i} className="p-6 rounded-3xl border-none bg-white shadow-sm ring-1 ring-neutral-200/60 transition-all hover:shadow-md group">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">{stat.label}</p>
+                        <p className="text-3xl font-black text-neutral-900 mt-1">{stat.value}</p>
+                      </div>
+                      <div className={`p-3 rounded-2xl bg-${stat.color === 'primary' ? 'primary/10' : stat.color + '-50'} text-${stat.color === 'primary' ? 'primary' : stat.color + '-600'} group-hover:scale-110 transition-transform`}>
+                        <stat.icon size={24} />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
 
-            {loading ? (
-              <p className="text-muted-foreground">Loading...</p>
-            ) : borrowedBooks.length === 0 ? (
-              <p className="text-muted-foreground">No borrowed books</p>
-            ) : (
-              <Card className="p-4 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b">
-                    <tr>
-                      <th className="text-left py-2 px-2">Serial No</th>
-                      <th className="text-left py-2 px-2">Borrower Name</th>
-                      <th className="text-left py-2 px-2">Phone Number</th>
-                      <th className="text-left py-2 px-2">Email Address</th>
-                      <th className="text-left py-2 px-2">Book Name</th>
-                      <th className="text-left py-2 px-2">Borrow Date</th>
-                      <th className="text-left py-2 px-2">Return Date (auto)</th>
-                      <th className="text-center py-2 px-2">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {borrowedBooks.map((book: any, idx: number) => (
-                      <tr key={book.id} className="border-b hover:bg-muted/30">
-                        <td className="py-2 px-2">{idx + 1}</td>
-                        <td className="py-2 px-2 font-bold text-primary">{book.borrowerName || '-'}</td>
-                        <td className="py-2 px-2 font-medium">{book.borrowerPhone || '-'}</td>
-                        <td className="py-2 px-2 font-medium text-blue-600">{book.borrowerEmail || '-'}</td>
-                        <td className="py-2 px-2 font-semibold">{book.bookTitle}</td>
-                        <td className="py-2 px-2">{new Date(book.borrowDate).toLocaleDateString()}</td>
-                        <td className="py-2 px-2">{book.dueDate ? new Date(book.dueDate).toLocaleDateString() : (book.returnDate ? new Date(book.returnDate).toLocaleDateString() : '-')}</td>
-                        <td className="py-2 px-2 text-center">
-                          <div className="flex items-center justify-center gap-2">
-                            {book.status === 'borrowed' && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => {
-                                  if (confirm('Mark this book as returned?')) {
-                                    fetch(`/api/book-borrows/${book.id}/return`, { method: 'PATCH', credentials: 'include' })
-                                      .then(res => {
-                                        if (res.ok) {
-                                          fetchBorrowedBooks();
-                                          toast({ title: 'Success', description: 'Book marked as returned.' });
-                                        }
-                                      });
-                                  }
-                                }}
-                                className="text-green-600 border-green-200 hover:bg-green-50"
-                              >
-                                Return
-                              </Button>
-                            )}
-                            <Button
-                              variant="outline"
-                              size="icon"
-                              onClick={() => deleteBorrowedBook(book.id)}
-                              className="text-destructive h-8 w-8"
-                              title="Delete"
-                            >
-                              <Trash2 size={14} />
-                            </Button>
-                          </div>
-                        </td>
+              {loading ? (
+                <div className="flex justify-center p-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>
+              ) : libraryCards.length === 0 ? (
+                <Card className="p-20 text-center border-dashed bg-neutral-50/50">
+                  <CreditCard className="mx-auto h-12 w-12 text-neutral-300 mb-4" />
+                  <h3 className="text-xl font-bold text-neutral-900">No Applications</h3>
+                  <p className="text-neutral-500 mt-2">Library card applications will appear here once students apply.</p>
+                </Card>
+              ) : (
+                <Card className="rounded-3xl border-none bg-white shadow-xl shadow-neutral-200/40 overflow-hidden ring-1 ring-neutral-200/60">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-neutral-50 border-b border-neutral-100">
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Student Details</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Card ID</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Contact</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Status</th>
+                          <th className="text-center py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-50">
+                        {libraryCards.map((card: any, idx: number) => (
+                          <tr key={card.id} className="group hover:bg-neutral-50/50 transition-colors">
+                            <td className="py-5 px-6">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center font-bold text-neutral-500 text-sm">
+                                  {card.firstName?.charAt(0)}{card.lastName?.charAt(0)}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-neutral-900">{card.firstName} {card.lastName}</div>
+                                  <div className="text-xs text-neutral-400 font-medium">S/O: {card.fatherName || '-'}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="text-[10px] font-black text-neutral-400 uppercase tracking-tighter mb-1">SN #{idx + 1}</div>
+                              <span className="bg-primary/10 text-primary px-2.5 py-1 rounded-lg text-xs font-bold ring-1 ring-primary/20">{card.cardNumber}</span>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="text-xs font-bold text-neutral-700">{card.email}</div>
+                              <div className="text-[10px] font-medium text-neutral-400 mt-1">{card.phone}</div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <span className={`inline-flex items-center px-4 py-1 rounded-full text-[10px] font-black uppercase tracking-tight ${card.status === 'approved'
+                                  ? 'bg-emerald-100 text-emerald-700 ring-1 ring-emerald-200'
+                                  : card.status === 'rejected'
+                                    ? 'bg-rose-100 text-rose-700 ring-1 ring-rose-200'
+                                    : 'bg-amber-100 text-amber-700 ring-1 ring-amber-200 animate-pulse'
+                                }`}>
+                                {card.status || 'pending'}
+                              </span>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                {card.status?.toLowerCase() === 'pending' && (
+                                  <Button
+                                    variant="outline"
+                                    size="sm"
+                                    onClick={() => approveLibraryCardHandler(card.id)}
+                                    className="h-8 rounded-xl border-primary/20 text-primary font-bold text-[10px] uppercase hover:bg-primary/5"
+                                  >
+                                    Approve
+                                  </Button>
+                                )}
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => deleteLibraryCard(card.id)}
+                                  className="h-8 w-8 text-neutral-300 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* Users Module */}
+          {activeModule === 'users' && (
+            <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                <div>
+                  <h2 className="text-4xl font-black text-neutral-900 tracking-tight">Registered Users</h2>
+                  <p className="text-neutral-500 mt-2 font-medium">Overview of all system users and their roles.</p>
+                </div>
+                <div className="flex flex-wrap gap-3">
+                  <Button variant="outline" size="lg" onClick={() => fetchUsers()} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <RefreshCw size={18} className="text-primary" /> Refresh
+                  </Button>
+                  <div className="h-10 w-[1px] bg-neutral-200 hidden md:block"></div>
+                  <Button variant="outline" size="lg" onClick={() => downloadExcel(users, 'Registered-Users', 'users')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-emerald-600" /> Excel
+                  </Button>
+                  <Button variant="outline" size="lg" onClick={() => downloadPDF('Registered Users Report', users, 'users')} className="rounded-xl font-bold bg-white shadow-sm hover:shadow-md transition-all gap-2">
+                    <Download size={18} className="text-rose-600" /> PDF
+                  </Button>
+                </div>
+              </div>
+
+              {/* User Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {[
+                  { label: 'Students', value: studentCountValue, icon: Users, color: 'primary' },
+                  { label: 'Staff Members', value: staffCountValue, icon: Shield, color: 'blue' },
+                  { label: 'External Visitors', value: visitorCountValue, icon: ArrowRight, color: 'emerald' }
+                ].map((stat, i) => (
+                  <Card key={i} className="p-6 rounded-3xl border-none bg-white shadow-sm ring-1 ring-neutral-200/60 transition-all hover:shadow-md group">
+                    <div className="flex justify-between items-start">
+                      <div>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-neutral-400 mb-1">{stat.label}</p>
+                        <p className="text-3xl font-black text-neutral-900 mt-1">{stat.value}</p>
+                      </div>
+                      <div className={`p-3 rounded-2xl bg-${stat.color === 'primary' ? 'primary/10' : stat.color + '-50'} text-${stat.color === 'primary' ? 'primary' : stat.color + '-600'} group-hover:scale-110 transition-transform`}>
+                        <stat.icon size={24} />
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
+
+              {loading ? (
+                <div className="flex justify-center p-20"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>
+              ) : users.length === 0 ? (
+                <Card className="p-20 text-center border-dashed bg-neutral-50/50">
+                  <Users className="mx-auto h-12 w-12 text-neutral-300 mb-4" />
+                  <h3 className="text-xl font-bold text-neutral-900">No Users Registered</h3>
+                  <p className="text-neutral-500 mt-2">New user accounts will appear here once they sign up.</p>
+                </Card>
+              ) : (
+                <Card className="rounded-3xl border-none bg-white shadow-xl shadow-neutral-200/40 overflow-hidden ring-1 ring-neutral-200/60">
+                  <div className="overflow-x-auto">
+                    <table className="w-full">
+                      <thead>
+                        <tr className="bg-neutral-50 border-b border-neutral-100">
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">User Identity</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Contact Details</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Classification</th>
+                          <th className="text-left py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Joined</th>
+                          <th className="text-center py-5 px-6 text-[11px] font-black uppercase tracking-widest text-neutral-400">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-neutral-50">
+                        {users.map((user: any) => (
+                          <tr key={user.id} className="group hover:bg-neutral-50/50 transition-colors">
+                            <td className="py-5 px-6">
+                              <div className="flex items-center gap-3">
+                                <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center font-bold text-neutral-500 text-sm">
+                                  {(user.fullName || user.username || 'U').charAt(0).toUpperCase()}
+                                </div>
+                                <div>
+                                  <div className="font-bold text-neutral-900 flex items-center gap-2">
+                                    {user.fullName || user.full_name || '-'}
+                                    {(user.id === "1" || user.id === "admin" || user.type === "admin") && (
+                                      <span className="text-[8px] bg-neutral-900 text-white px-2 py-0.5 rounded font-black uppercase tracking-widest shadow-sm">Admin</span>
+                                    )}
+                                  </div>
+                                  <div className="text-[10px] font-bold text-neutral-400 uppercase tracking-tighter">ID: {user.id}</div>
+                                </div>
+                              </div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="text-xs font-bold text-neutral-700">{user.email || '-'}</div>
+                              <div className="text-[10px] font-medium text-neutral-400 mt-1">{user.phone || 'No Phone'}</div>
+                            </td>
+                            <td className="py-5 px-6">
+                              <span className={`inline-flex items-center px-3 py-1 rounded-full text-[10px] font-black uppercase tracking-tight ${user.type === 'admin'
+                                  ? 'bg-neutral-900 text-white'
+                                  : user.type === 'staff'
+                                    ? 'bg-blue-100 text-blue-700'
+                                    : 'bg-neutral-100 text-neutral-600'
+                                }`}>
+                                {user.type || 'user'}
+                              </span>
+                            </td>
+                            <td className="py-5 px-6 font-bold text-neutral-400 text-xs">
+                              {new Date(user.createdAt).toLocaleDateString()}
+                            </td>
+                            <td className="py-5 px-6">
+                              <div className="flex items-center justify-center gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                                <Button
+                                  variant="ghost"
+                                  size="icon"
+                                  onClick={() => deleteUser(user.id)}
+                                  className="h-8 w-8 text-neutral-300 hover:text-rose-600 rounded-lg hover:bg-rose-50"
+                                  disabled={user.id === "1" || user.id === "admin"}
+                                  title={user.id === "1" || user.id === "admin" ? "Cannot delete admin" : "Delete User"}
+                                >
+                                  <Trash2 size={16} />
+                                </Button>
+                              </div>
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </Card>
+              )}
+            </div>
+          )}
+
+          {/* Donations Module */}
+          {activeModule === 'donations' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold">Donations</h2>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchDonations()}
+                    className="gap-2"
+                  >
+                    <RefreshCw size={16} /> Refresh
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadExcel(donations, 'Donations', 'donations')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> Excel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadPDF('Donations Report', donations, 'donations')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> PDF
+                  </Button>
+                </div>
+              </div>
+
+              {/* Donation Stats */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+                <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md border-l-4 border-l-primary">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Fund</p>
+                      <p className="text-3xl font-black mt-1 text-primary">PKR {totalDonationsValue.toLocaleString()}</p>
+                    </div>
+                    <div className="p-2 bg-primary/10 rounded-lg">
+                      <Gift size={24} className="text-primary" />
+                    </div>
+                  </div>
+                </Card>
+                <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md border-l-4 border-l-blue-600">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Contributors</p>
+                      <p className="text-3xl font-black mt-1 text-blue-600">{donations.length}</p>
+                    </div>
+                    <div className="p-2 bg-blue-50 rounded-lg">
+                      <Users size={24} className="text-blue-600" />
+                    </div>
+                  </div>
+                </Card>
+                <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md border-l-4 border-l-emerald-600">
+                  <div className="flex justify-between items-start">
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Avg. Impact</p>
+                      <p className="text-3xl font-black mt-1 text-emerald-600">PKR {donations.length > 0 ? Math.round(totalDonationsValue / donations.length).toLocaleString() : '0'}</p>
+                    </div>
+                    <div className="p-2 bg-emerald-50 rounded-lg">
+                      <BarChart3 size={24} className="text-emerald-600" />
+                    </div>
+                  </div>
+                </Card>
+              </div>
+
+              {loading ? (
+                <p className="text-muted-foreground">Loading...</p>
+              ) : donations.length === 0 ? (
+                <p className="text-muted-foreground">No donations yet</p>
+              ) : (
+                <Card className="p-4 overflow-x-auto">
+                  <table className="w-full text-sm">
+                    <thead className="border-b">
+                      <tr>
+                        <th className="text-left py-2 px-2">Donor Name</th>
+                        <th className="text-left py-2 px-2">Email</th>
+                        <th className="text-left py-2 px-2">Amount (PKR)</th>
+                        <th className="text-left py-2 px-2">Date</th>
+                        <th className="text-center py-2 px-2">Actions</th>
                       </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Library Cards Module */}
-        {activeModule === 'library-cards' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Library Cards</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchLibraryCards()}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(libraryCards, 'Library-Cards', 'library-cards')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Library Card Applications Report', libraryCards, 'library-cards')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
-              </div>
-            </div>
-
-            {loading ? (
-              <p className="text-muted-foreground">Loading...</p>
-            ) : libraryCards.length === 0 ? (
-              <p className="text-muted-foreground">No library cards issued yet</p>
-            ) : (
-              <Card className="p-4 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b bg-muted">
-                    <tr>
-                      <th className="text-left py-2 px-2">S.No</th>
-                      <th className="text-left py-2 px-2">Card ID</th>
-                      <th className="text-left py-2 px-2">Student Name</th>
-                      <th className="text-left py-2 px-2">Father Name</th>
-                      <th className="text-left py-2 px-2">Date of Birth</th>
-                      <th className="text-left py-2 px-2">Email</th>
-                      <th className="text-left py-2 px-2">Phone</th>
-                      <th className="text-left py-2 px-2">Address</th>
-                      <th className="text-left py-2 px-2">Status</th>
-                      <th className="text-center py-2 px-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {libraryCards.map((card: any, idx: number) => (
-                      <tr key={card.id} className="border-b hover:bg-muted/30">
-                        <td className="py-2 px-2 text-center">{idx + 1}</td>
-                        <td className="py-2 px-2 font-bold text-primary">{card.cardNumber}</td>
-                        <td className="py-2 px-2 font-bold">{card.firstName} {card.lastName}</td>
-                        <td className="py-2 px-2 font-medium">{card.fatherName || '-'}</td>
-                        <td className="py-2 px-2">{card.dob || '-'}</td>
-                        <td className="py-2 px-2 font-medium text-blue-600">{card.email || '-'}</td>
-                        <td className="py-2 px-2">{card.phone || '-'}</td>
-                        <td className="py-2 px-2 text-xs text-muted-foreground">{card.addressStreet || '-'}</td>
-                        <td className="py-2 px-2">
-                          <span className={`px-2 py-1 rounded text-[10px] font-bold uppercase tracking-wider ${card.status === 'approved' ? 'bg-emerald-100 text-emerald-700' : card.status === 'rejected' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
-                            }`}>
-                            {card.status || 'pending'}
-                          </span>
-                        </td>
-                        <td className="py-2 px-2 text-center">
-                          <div className="flex items-center gap-1 justify-center">
-                            {card.status?.toLowerCase() === 'pending' && (
-                              <Button
-                                variant="outline"
-                                size="icon"
-                                onClick={() => approveLibraryCardHandler(card.id)}
-                                className="text-green-600"
-                                title="Approve"
-                              >
-                                <CheckCircle size={16} />
-                              </Button>
-                            )}
+                    </thead>
+                    <tbody>
+                      {donations.map((donation: any) => (
+                        <tr key={donation.id} className="border-b hover:bg-muted/30">
+                          <td className="py-2 px-2 font-bold text-primary">{donation.donorName || '-'}</td>
+                          <td className="py-2 px-2 font-medium">{donation.email || '-'}</td>
+                          <td className="py-2 px-2 font-bold text-green-600">{parseFloat(donation.amount || 0).toLocaleString()}</td>
+                          <td className="py-2 px-2">{new Date(donation.createdAt).toLocaleDateString()}</td>
+                          <td className="py-2 px-2 text-center">
                             <Button
                               variant="outline"
                               size="icon"
-                              onClick={() => deleteLibraryCard(card.id)}
+                              onClick={() => deleteDonation(donation.id)}
                               className="text-destructive"
                               title="Delete"
                             >
                               <Trash2 size={16} />
                             </Button>
-                          </div>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Users Module */}
-        {activeModule === 'users' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Registered Users</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchUsers()}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(users, 'Registered-Users', 'users')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Registered Users Report', users, 'users')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
-              </div>
+                          </td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                </Card>
+              )}
             </div>
+          )}
 
-            {/* User Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Students</p>
-                    <p className="text-3xl font-bold mt-1 text-primary">{studentCountValue}</p>
-                  </div>
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Users size={24} className="text-primary" />
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Staff</p>
-                    <p className="text-3xl font-bold mt-1 text-blue-600">{staffCountValue}</p>
-                  </div>
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Users size={24} className="text-blue-600" />
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Visitors</p>
-                    <p className="text-3xl font-bold mt-1 text-emerald-600">{visitorCountValue}</p>
-                  </div>
-                  <div className="p-2 bg-emerald-50 rounded-lg">
-                    <Users size={24} className="text-emerald-600" />
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {loading ? (
-              <p className="text-muted-foreground">Loading...</p>
-            ) : users.length === 0 ? (
-              <p className="text-muted-foreground">No users registered yet</p>
-            ) : (
-              <Card className="p-4 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b">
-                    <tr>
-                      <th className="text-left py-2 px-2">Full Name</th>
-                      <th className="text-left py-2 px-2">Email</th>
-                      <th className="text-left py-2 px-2">Phone</th>
-                      <th className="text-left py-2 px-2">Type</th>
-                      <th className="text-left py-2 px-2">Reg Date</th>
-                      <th className="text-center py-2 px-2">Action</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {users.map((user: any) => (
-                      <tr key={user.id} className="border-b hover:bg-muted/30">
-                        <td className="py-2 px-2 font-bold text-primary flex items-center gap-2">
-                          {user.fullName || user.full_name || '-'}
-                          {(user.id === "1" || user.id === "admin" || user.type === "admin") && (
-                            <span className="text-[9px] bg-slate-900 text-white px-2 py-0.5 rounded shadow-sm font-bold tracking-widest uppercase">System Admin</span>
-                          )}
-                        </td>
-                        <td className="py-2 px-2 font-medium">{user.email || '-'}</td>
-                        <td className="py-2 px-2">{user.phone || '-'}</td>
-                        <td className="py-2 px-2"><span className="text-xs px-2 py-1 bg-muted rounded font-semibold uppercase">{user.type || 'user'}</span></td>
-                        <td className="py-2 px-2">{new Date(user.createdAt).toLocaleDateString()}</td>
-                        <td className="py-2 px-2 text-center">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => deleteUser(user.id)}
-                            className="text-destructive h-8 w-8"
-                            disabled={user.id === "1" || user.id === "admin"}
-                            title={user.id === "1" || user.id === "admin" ? "Cannot delete admin" : "Delete"}
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Donations Module */}
-        {activeModule === 'donations' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Donations</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchDonations()}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(donations, 'Donations', 'donations')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Donations Report', donations, 'donations')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
-              </div>
-            </div>
-
-            {/* Donation Stats */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-              <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md border-l-4 border-l-primary">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Total Fund</p>
-                    <p className="text-3xl font-black mt-1 text-primary">PKR {totalDonationsValue.toLocaleString()}</p>
-                  </div>
-                  <div className="p-2 bg-primary/10 rounded-lg">
-                    <Gift size={24} className="text-primary" />
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md border-l-4 border-l-blue-600">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Contributors</p>
-                    <p className="text-3xl font-black mt-1 text-blue-600">{donations.length}</p>
-                  </div>
-                  <div className="p-2 bg-blue-50 rounded-lg">
-                    <Users size={24} className="text-blue-600" />
-                  </div>
-                </div>
-              </Card>
-              <Card className="p-4 hover:-translate-y-1 transition-transform shadow-sm hover:shadow-md border-l-4 border-l-emerald-600">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground uppercase tracking-wider">Avg. Impact</p>
-                    <p className="text-3xl font-black mt-1 text-emerald-600">PKR {donations.length > 0 ? Math.round(totalDonationsValue / donations.length).toLocaleString() : '0'}</p>
-                  </div>
-                  <div className="p-2 bg-emerald-50 rounded-lg">
-                    <BarChart3 size={24} className="text-emerald-600" />
-                  </div>
-                </div>
-              </Card>
-            </div>
-
-            {loading ? (
-              <p className="text-muted-foreground">Loading...</p>
-            ) : donations.length === 0 ? (
-              <p className="text-muted-foreground">No donations yet</p>
-            ) : (
-              <Card className="p-4 overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b">
-                    <tr>
-                      <th className="text-left py-2 px-2">Donor Name</th>
-                      <th className="text-left py-2 px-2">Email</th>
-                      <th className="text-left py-2 px-2">Amount (PKR)</th>
-                      <th className="text-left py-2 px-2">Date</th>
-                      <th className="text-center py-2 px-2">Actions</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {donations.map((donation: any) => (
-                      <tr key={donation.id} className="border-b hover:bg-muted/30">
-                        <td className="py-2 px-2 font-bold text-primary">{donation.donorName || '-'}</td>
-                        <td className="py-2 px-2 font-medium">{donation.email || '-'}</td>
-                        <td className="py-2 px-2 font-bold text-green-600">{parseFloat(donation.amount || 0).toLocaleString()}</td>
-                        <td className="py-2 px-2">{new Date(donation.createdAt).toLocaleDateString()}</td>
-                        <td className="py-2 px-2 text-center">
-                          <Button
-                            variant="outline"
-                            size="icon"
-                            onClick={() => deleteDonation(donation.id)}
-                            className="text-destructive"
-                            title="Delete"
-                          >
-                            <Trash2 size={16} />
-                          </Button>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </Card>
-            )}
-          </div>
-        )}
-
-        {/* Notes Module */}
-        {activeModule === 'notes' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Study Notes Management</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchNotes()}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(notes, 'Study-Notes', 'notes')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Study Notes Report', notes, 'notes')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
-              </div>
-            </div>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Add Note Form */}
-              <Card className="lg:col-span-1 p-6">
-                <h3 className="text-lg font-semibold mb-4">Add New Note</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Class</label>
-                    <select className="w-full mt-1 p-2 border rounded-md" value={noteForm.class} onChange={(e) => setNoteForm({ ...noteForm, class: e.target.value })}>
-                      <option value="">Select Class</option>
-                      <option>Class 11</option>
-                      <option>Class 12</option>
-                      <option>ADS I</option>
-                      <option>ADS II</option>
-                      <option>BSc Part 1</option>
-                      <option>BSc Part 2</option>
-                    </select>
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Subject</label>
-                    <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="e.g., Mathematics" value={noteForm.subject} onChange={(e) => setNoteForm({ ...noteForm, subject: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Title</label>
-                    <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="Note title" value={noteForm.title} onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Description</label>
-                    <textarea className="w-full mt-1 p-2 border rounded-md" placeholder="Note description" value={noteForm.description} onChange={(e) => setNoteForm({ ...noteForm, description: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Upload Notes (PDF)</label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => document.getElementById('note-file-input')?.click()}
-                        className="w-full"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        {selectedFile ? 'Change File' : 'Browse'}
-                      </Button>
-                      <input
-                        id="note-file-input"
-                        type="file"
-                        accept=".pdf"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            if (file.type !== 'application/pdf') {
-                              toast({ title: 'Invalid File', description: 'Only PDF files are allowed', variant: 'destructive' });
-                              return;
-                            }
-                            setSelectedFile(file);
-                            setNoteForm({ ...noteForm, pdfPath: file.name });
-                          }
-                        }}
-                      />
-                    </div>
-                    {selectedFile && (
-                      <p className="text-xs text-muted-foreground mt-1 truncate">
-                        Selected: {selectedFile.name}
-                      </p>
-                    )}
-                  </div>
-                  <Button className="w-full" onClick={async () => {
-                    if (noteForm.class && noteForm.subject && noteForm.title && noteForm.description && selectedFile) {
-                      setLoading(true);
-                      try {
-                        const formData = new FormData();
-                        formData.append('file', selectedFile);
-                        formData.append('class', noteForm.class);
-                        formData.append('subject', noteForm.subject);
-                        formData.append('title', noteForm.title);
-                        formData.append('description', noteForm.description);
-                        formData.append('status', noteForm.status);
-
-                        const res = await fetch('/api/admin/notes', {
-                          method: 'POST',
-                          credentials: 'include',
-                          body: formData
-                        });
-
-                        if (res.ok) {
-                          setNoteForm({ class: '', subject: '', title: '', description: '', pdfPath: '', status: 'active' });
-                          setSelectedFile(null);
-                          fetchNotes();
-                          toast({ title: 'Success', description: 'Note added successfully' });
-                        } else {
-                          const error = await res.json();
-                          toast({ title: 'Error', description: error.message || 'Failed to add note', variant: 'destructive' });
-                        }
-                      } catch (err) {
-                        toast({ title: 'Error', description: 'Failed to upload note', variant: 'destructive' });
-                      } finally {
-                        setLoading(false);
-                      }
-                    } else {
-                      toast({ title: 'Required', description: 'All fields including PDF file are required', variant: 'destructive' });
-                    }
-                  }}>
-                    Add Note
+          {/* Notes Module */}
+          {activeModule === 'notes' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold">Study Notes Management</h2>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchNotes()}
+                    className="gap-2"
+                  >
+                    <RefreshCw size={16} /> Refresh
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadExcel(notes, 'Study-Notes', 'notes')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> Excel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadPDF('Study Notes Report', notes, 'notes')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> PDF
                   </Button>
                 </div>
-              </Card>
-
-              {/* Notes List */}
-              <div className="lg:col-span-2">
-                {loading ? (
-                  <p className="text-muted-foreground">Loading...</p>
-                ) : notes.length === 0 ? (
-                  <p className="text-muted-foreground">No notes yet. Add one to get started!</p>
-                ) : (
-                  <Card className="p-4 overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="border-b">
-                        <tr>
-                          <th className="text-left py-2 px-2">Class</th>
-                          <th className="text-left py-2 px-2">Subject</th>
-                          <th className="text-left py-2 px-2">Title</th>
-                          <th className="text-left py-2 px-2">Status</th>
-                          <th className="text-center py-2 px-2">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {notes.map((note: any) => (
-                          <tr key={note.id} className="border-b hover:bg-muted/30">
-                            <td className="py-2 px-2 font-medium text-emerald-600 bg-emerald-50/50 rounded-l-md">{note.class}</td>
-                            <td className="py-2 px-2 font-medium text-blue-600 bg-blue-50/50">{note.subject}</td>
-                            <td className="py-2 px-2 truncate font-bold text-slate-800">{note.title}</td>
-                            <td className="py-2 px-2">
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${note.status === 'active' ? 'bg-emerald-100 text-emerald-700 shadow-sm' : 'bg-rose-100 text-rose-700 shadow-sm'}`}>
-                                {note.status}
-                              </span>
-                            </td>
-                            <td className="py-2 px-2 text-center space-x-2">
-                              {note.pdfPath && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => window.open(note.pdfPath.startsWith('http') ? note.pdfPath : `${window.location.origin}${note.pdfPath}`, '_blank')}
-                                  title="View PDF"
-                                >
-                                  <Download size={14} />
-                                </Button>
-                              )}
-                              <Button size="sm" variant="outline" onClick={() => toggleNoteStatus(note.id)}>
-                                {note.status === 'active' ? 'Hide' : 'Show'}
-                              </Button>
-                              <Button size="sm" variant="outline" onClick={() => deleteNote(note.id)} className="text-destructive">
-                                <Trash2 size={14} />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </Card>
-                )}
               </div>
-            </div>
-          </div>
-        )}
-        {activeModule === 'rare-books' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Rare Books Management</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchRareBooks()}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(rareBooks, 'Rare-Books', 'rare-books')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Rare Books Report', rareBooks, 'rare-books')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
-              </div>
-            </div>
-            <div className="grid lg:grid-cols-3 gap-8">
-              {/* Add Rare Book Form */}
-              <Card className="lg:col-span-1 p-6">
-                <h3 className="text-lg font-semibold mb-4">Add New Rare Book</h3>
-                <div className="space-y-4">
-                  <div>
-                    <label className="text-sm font-medium">Title</label>
-                    <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="Book title" value={rareBookForm.title} onChange={(e) => setRareBookForm({ ...rareBookForm, title: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Category</label>
-                    <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="e.g., History" value={rareBookForm.category} onChange={(e) => setRareBookForm({ ...rareBookForm, category: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Description</label>
-                    <textarea className="w-full mt-1 p-2 border rounded-md" placeholder="Book description" value={rareBookForm.description} onChange={(e) => setRareBookForm({ ...rareBookForm, description: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Cover Image (Required)</label>
-                    <Input
-                      id="rare-book-cover-input"
-                      type="file"
-                      accept="image/*"
-                      className="mt-1"
-                    />
-                  </div>
-                  <div>
-                    <label className="text-sm font-medium">Upload Rare Book (PDF)</label>
-                    <div className="flex items-center gap-2 mt-1">
-                      <Button
-                        type="button"
-                        variant="outline"
-                        onClick={() => document.getElementById('rare-book-file-input')?.click()}
-                        className="w-full"
-                      >
-                        <Download className="w-4 h-4 mr-2" />
-                        {selectedFile ? 'Change File' : 'Browse'}
-                      </Button>
-                      <input
-                        id="rare-book-file-input"
-                        type="file"
-                        accept=".pdf"
-                        className="hidden"
-                        onChange={(e) => {
-                          const file = e.target.files?.[0];
-                          if (file) {
-                            if (file.type !== 'application/pdf') {
-                              toast({ title: 'Invalid File', description: 'Only PDF files are allowed', variant: 'destructive' });
-                              return;
-                            }
-                            setSelectedFile(file);
-                          }
-                        }}
-                      />
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* Add Note Form */}
+                <Card className="lg:col-span-1 p-6">
+                  <h3 className="text-lg font-semibold mb-4">Add New Note</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">Class</label>
+                      <select className="w-full mt-1 p-2 border rounded-md" value={noteForm.class} onChange={(e) => setNoteForm({ ...noteForm, class: e.target.value })}>
+                        <option value="">Select Class</option>
+                        <option>Class 11</option>
+                        <option>Class 12</option>
+                        <option>ADS I</option>
+                        <option>ADS II</option>
+                        <option>BSc Part 1</option>
+                        <option>BSc Part 2</option>
+                      </select>
                     </div>
-                    {selectedFile && (
-                      <p className="text-xs text-muted-foreground mt-1 truncate">
-                        Selected: {selectedFile.name}
-                      </p>
-                    )}
-                  </div>
-                  <Button className="w-full" disabled={loading} onClick={async () => {
-                    if (rareBookForm.title && rareBookForm.description && selectedFile && (document.getElementById('rare-book-cover-input') as HTMLInputElement)?.files?.[0]) {
-                      setLoading(true);
-                      try {
-                        const coverFile = (document.getElementById('rare-book-cover-input') as HTMLInputElement).files?.[0];
-                        const formData = new FormData();
-                        formData.append('file', selectedFile);
-                        if (coverFile) formData.append('coverImage', coverFile);
-                        formData.append('title', rareBookForm.title);
-                        formData.append('description', rareBookForm.description);
-                        formData.append('category', rareBookForm.category);
-                        formData.append('status', rareBookForm.status);
-
-                        const res = await fetch('/api/admin/rare-books', {
-                          method: 'POST',
-                          credentials: 'include',
-                          body: formData
-                        });
-
-                        if (res.ok) {
-                          setRareBookForm({ title: '', description: '', category: '', status: 'active' });
-                          setSelectedFile(null);
-                          // Clear the file inputs manually
-                          const fileInput = document.getElementById('rare-book-file-input') as HTMLInputElement;
-                          if (fileInput) fileInput.value = '';
-                          const coverInput = document.getElementById('rare-book-cover-input') as HTMLInputElement;
-                          if (coverInput) coverInput.value = '';
-
-                          await fetchRareBooks();
-                          toast({ title: 'Success', description: 'Rare book and cover added successfully' });
-                        } else {
-                          const error = await res.json();
-                          toast({ title: 'Error', description: error.message || error.error || 'Failed to add rare book', variant: 'destructive' });
-                        }
-                      } catch (err) {
-                        console.error('Upload error:', err);
-                        toast({ title: 'Error', description: 'Failed to upload rare book', variant: 'destructive' });
-                      } finally {
-                        setLoading(false);
-                      }
-                    } else {
-                      toast({ title: 'Required', description: 'All fields including PDF and Cover Image are required', variant: 'destructive' });
-                    }
-                  }}>
-                    {loading ? 'Uploading...' : 'Add Rare Book'}
-                  </Button>
-                </div>
-              </Card>
-
-              {/* Rare Books List */}
-              <div className="lg:col-span-2">
-                {loading && !rareBooks.length ? (
-                  <p className="text-muted-foreground">Loading...</p>
-                ) : !rareBooks || rareBooks.length === 0 ? (
-                  <p className="text-muted-foreground">No rare books yet. Add one to get started!</p>
-                ) : (
-                  <Card className="p-4 overflow-x-auto">
-                    <table className="w-full text-sm">
-                      <thead className="border-b">
-                        <tr>
-                          <th className="text-left py-2 px-2">Title</th>
-                          <th className="text-left py-2 px-2">Category</th>
-                          <th className="text-left py-2 px-2">Status</th>
-                          <th className="text-center py-2 px-2">Actions</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        {rareBooks.map((book: any) => (
-                          <tr key={book.id} className="border-b hover:bg-muted/30">
-                            <td className="py-2 px-2 font-black text-primary drop-shadow-sm">{book.title}</td>
-                            <td className="py-2 px-2 font-bold text-amber-700">
-                              <span className="px-2 py-0.5 bg-amber-50 rounded-md border border-amber-100">{book.category}</span>
-                            </td>
-                            <td className="py-2 px-2">
-                              <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${book.status === 'active' ? 'bg-emerald-100 text-emerald-700 shadow-sm' : 'bg-rose-100 text-rose-700 shadow-sm'}`}>
-                                {book.status}
-                              </span>
-                            </td>
-                            <td className="py-2 px-2 text-center space-x-2">
-                              {book.pdfPath && (
-                                <Button
-                                  size="sm"
-                                  variant="outline"
-                                  onClick={() => {
-                                    const url = `/api/rare-books/stream/${book.id}`;
-                                    window.open(url, '_blank');
-                                  }}
-                                  title="Preview PDF"
-                                >
-                                  <Eye size={14} />
-                                </Button>
-                              )}
-                              <Button size="sm" variant="outline" onClick={() => toggleRareBookStatus(book.id)}>
-                                {book.status === 'active' ? 'Hide' : 'Show'}
-                              </Button>
-                              <Button size="sm" variant="outline" onClick={() => deleteRareBook(book.id)} className="text-destructive">
-                                <Trash2 size={14} />
-                              </Button>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </Card>
-                )}
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeModule === 'books-details' && (
-          <Books />
-        )}
-        {/* Events Module */}
-        {activeModule === 'events' && (
-          <div>
-            <div className="flex justify-between items-center mb-6">
-              <h2 className="text-3xl font-bold">Events Management</h2>
-              <div className="flex gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => fetchEvents()}
-                  className="gap-2"
-                >
-                  <RefreshCw size={16} /> Refresh
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadExcel(events, 'Events-List', 'events')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> Excel
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => downloadPDF('Events Report', events, 'events')}
-                  className="gap-2"
-                >
-                  <Download size={16} /> PDF
-                </Button>
-              </div>
-            </div>
-
-            <Card className="p-6 mb-8">
-              <h3 className="text-xl font-semibold mb-4">Add New Event</h3>
-              <form onSubmit={handleEventSubmit} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Event Title</label>
-                    <Input
-                      required
-                      value={eventForm.title}
-                      onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
-                      placeholder="Annual Prize Distribution"
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <label className="text-sm font-medium">Event Date</label>
-                    <Input
-                      type="date"
-                      value={eventForm.date}
-                      onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Description</label>
-                  <textarea
-                    required
-                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                    value={eventForm.description}
-                    onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
-                    placeholder="Describe the event details..."
-                  />
-                </div>
-                <div className="space-y-2">
-                  <label className="text-sm font-medium">Event Images (Multiple allowed)</label>
-                  <Input
-                    id="eventImages"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                  />
-                </div>
-                <Button type="submit" disabled={loading} className="w-full">
-                  {loading ? 'Adding Event...' : 'Add Event'}
-                </Button>
-              </form>
-            </Card>
-
-            {loading ? (
-              <p className="text-muted-foreground">Loading events...</p>
-            ) : events.length === 0 ? (
-              <p className="text-muted-foreground">No events found</p>
-            ) : (
-              <div className="grid grid-cols-1 gap-6">
-                {events.map((event: any) => (
-                  <Card key={event.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-none bg-gradient-to-br from-white to-slate-50/50 group">
-                    <div className="flex flex-col md:flex-row gap-0">
-                      {event.images && event.images.length > 0 && (
-                        <div className="md:w-64 h-48 md:h-auto overflow-hidden shrink-0 relative">
-                          <img
-                            src={event.images[0]}
-                            alt={event.title}
-                            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                          />
-                          <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
-                            <div className="flex items-center gap-1.5 text-primary text-xs font-bold">
-                              <BarChart3 size={12} /> Gallery
-                            </div>
-                          </div>
-                        </div>
+                    <div>
+                      <label className="text-sm font-medium">Subject</label>
+                      <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="e.g., Mathematics" value={noteForm.subject} onChange={(e) => setNoteForm({ ...noteForm, subject: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Title</label>
+                      <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="Note title" value={noteForm.title} onChange={(e) => setNoteForm({ ...noteForm, title: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Description</label>
+                      <textarea className="w-full mt-1 p-2 border rounded-md" placeholder="Note description" value={noteForm.description} onChange={(e) => setNoteForm({ ...noteForm, description: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Upload Notes (PDF)</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('note-file-input')?.click()}
+                          className="w-full"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          {selectedFile ? 'Change File' : 'Browse'}
+                        </Button>
+                        <input
+                          id="note-file-input"
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.type !== 'application/pdf') {
+                                toast({ title: 'Invalid File', description: 'Only PDF files are allowed', variant: 'destructive' });
+                                return;
+                              }
+                              setSelectedFile(file);
+                              setNoteForm({ ...noteForm, pdfPath: file.name });
+                            }
+                          }}
+                        />
+                      </div>
+                      {selectedFile && (
+                        <p className="text-xs text-muted-foreground mt-1 truncate">
+                          Selected: {selectedFile.name}
+                        </p>
                       )}
-                      <div className="flex-1 p-6 relative">
-                        <div className="flex justify-between items-start mb-4">
-                          <div>
-                            <div className="flex items-center gap-2 mb-2">
-                              <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded">Event</span>
-                              {event.date && (
-                                <span className="text-slate-500 text-xs font-medium flex items-center gap-1">
-                                  <RefreshCw size={12} className="animate-spin-slow" /> {new Date(event.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
-                                </span>
-                              )}
-                            </div>
-                            <h4 className="font-black text-2xl text-slate-800 group-hover:text-primary transition-colors">{event.title}</h4>
-                          </div>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteEvent(event.id)}
-                            className="text-slate-300 hover:text-destructive transition-colors shrink-0"
-                          >
-                            <Trash2 size={20} />
-                          </Button>
-                        </div>
-                        <p className="text-slate-600 mb-6 leading-relaxed line-clamp-3 text-sm">{event.description}</p>
+                    </div>
+                    <Button className="w-full" onClick={async () => {
+                      if (noteForm.class && noteForm.subject && noteForm.title && noteForm.description && selectedFile) {
+                        setLoading(true);
+                        try {
+                          const formData = new FormData();
+                          formData.append('file', selectedFile);
+                          formData.append('class', noteForm.class);
+                          formData.append('subject', noteForm.subject);
+                          formData.append('title', noteForm.title);
+                          formData.append('description', noteForm.description);
+                          formData.append('status', noteForm.status);
 
-                        <div className="flex flex-wrap gap-2 mt-auto">
-                          {event.images?.slice(1, 6).map((img: string, idx: number) => (
-                            <div key={idx} className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white shadow-sm hover:z-10 hover:scale-110 transition-transform cursor-pointer">
-                              <img
-                                src={img}
-                                alt={`Event element ${idx}`}
-                                className="w-full h-full object-cover"
-                              />
-                            </div>
+                          const res = await fetch('/api/admin/notes', {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: formData
+                          });
+
+                          if (res.ok) {
+                            setNoteForm({ class: '', subject: '', title: '', description: '', pdfPath: '', status: 'active' });
+                            setSelectedFile(null);
+                            fetchNotes();
+                            toast({ title: 'Success', description: 'Note added successfully' });
+                          } else {
+                            const error = await res.json();
+                            toast({ title: 'Error', description: error.message || 'Failed to add note', variant: 'destructive' });
+                          }
+                        } catch (err) {
+                          toast({ title: 'Error', description: 'Failed to upload note', variant: 'destructive' });
+                        } finally {
+                          setLoading(false);
+                        }
+                      } else {
+                        toast({ title: 'Required', description: 'All fields including PDF file are required', variant: 'destructive' });
+                      }
+                    }}>
+                      Add Note
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Notes List */}
+                <div className="lg:col-span-2">
+                  {loading ? (
+                    <p className="text-muted-foreground">Loading...</p>
+                  ) : notes.length === 0 ? (
+                    <p className="text-muted-foreground">No notes yet. Add one to get started!</p>
+                  ) : (
+                    <Card className="p-4 overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="border-b">
+                          <tr>
+                            <th className="text-left py-2 px-2">Class</th>
+                            <th className="text-left py-2 px-2">Subject</th>
+                            <th className="text-left py-2 px-2">Title</th>
+                            <th className="text-left py-2 px-2">Status</th>
+                            <th className="text-center py-2 px-2">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {notes.map((note: any) => (
+                            <tr key={note.id} className="border-b hover:bg-muted/30">
+                              <td className="py-2 px-2 font-medium text-emerald-600 bg-emerald-50/50 rounded-l-md">{note.class}</td>
+                              <td className="py-2 px-2 font-medium text-blue-600 bg-blue-50/50">{note.subject}</td>
+                              <td className="py-2 px-2 truncate font-bold text-slate-800">{note.title}</td>
+                              <td className="py-2 px-2">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${note.status === 'active' ? 'bg-emerald-100 text-emerald-700 shadow-sm' : 'bg-rose-100 text-rose-700 shadow-sm'}`}>
+                                  {note.status}
+                                </span>
+                              </td>
+                              <td className="py-2 px-2 text-center space-x-2">
+                                {note.pdfPath && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => window.open(note.pdfPath.startsWith('http') ? note.pdfPath : `${window.location.origin}${note.pdfPath}`, '_blank')}
+                                    title="View PDF"
+                                  >
+                                    <Download size={14} />
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="outline" onClick={() => toggleNoteStatus(note.id)}>
+                                  {note.status === 'active' ? 'Hide' : 'Show'}
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={() => deleteNote(note.id)} className="text-destructive">
+                                  <Trash2 size={14} />
+                                </Button>
+                              </td>
+                            </tr>
                           ))}
-                          {event.images?.length > 6 && (
-                            <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400 border-2 border-white shadow-sm">
-                              +{event.images.length - 6}
+                        </tbody>
+                      </table>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+          {activeModule === 'rare-books' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold">Rare Books Management</h2>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchRareBooks()}
+                    className="gap-2"
+                  >
+                    <RefreshCw size={16} /> Refresh
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadExcel(rareBooks, 'Rare-Books', 'rare-books')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> Excel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadPDF('Rare Books Report', rareBooks, 'rare-books')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> PDF
+                  </Button>
+                </div>
+              </div>
+              <div className="grid lg:grid-cols-3 gap-8">
+                {/* Add Rare Book Form */}
+                <Card className="lg:col-span-1 p-6">
+                  <h3 className="text-lg font-semibold mb-4">Add New Rare Book</h3>
+                  <div className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">Title</label>
+                      <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="Book title" value={rareBookForm.title} onChange={(e) => setRareBookForm({ ...rareBookForm, title: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Category</label>
+                      <input type="text" className="w-full mt-1 p-2 border rounded-md" placeholder="e.g., History" value={rareBookForm.category} onChange={(e) => setRareBookForm({ ...rareBookForm, category: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Description</label>
+                      <textarea className="w-full mt-1 p-2 border rounded-md" placeholder="Book description" value={rareBookForm.description} onChange={(e) => setRareBookForm({ ...rareBookForm, description: e.target.value })} />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Cover Image (Required)</label>
+                      <Input
+                        id="rare-book-cover-input"
+                        type="file"
+                        accept="image/*"
+                        className="mt-1"
+                      />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Upload Rare Book (PDF)</label>
+                      <div className="flex items-center gap-2 mt-1">
+                        <Button
+                          type="button"
+                          variant="outline"
+                          onClick={() => document.getElementById('rare-book-file-input')?.click()}
+                          className="w-full"
+                        >
+                          <Download className="w-4 h-4 mr-2" />
+                          {selectedFile ? 'Change File' : 'Browse'}
+                        </Button>
+                        <input
+                          id="rare-book-file-input"
+                          type="file"
+                          accept=".pdf"
+                          className="hidden"
+                          onChange={(e) => {
+                            const file = e.target.files?.[0];
+                            if (file) {
+                              if (file.type !== 'application/pdf') {
+                                toast({ title: 'Invalid File', description: 'Only PDF files are allowed', variant: 'destructive' });
+                                return;
+                              }
+                              setSelectedFile(file);
+                            }
+                          }}
+                        />
+                      </div>
+                      {selectedFile && (
+                        <p className="text-xs text-muted-foreground mt-1 truncate">
+                          Selected: {selectedFile.name}
+                        </p>
+                      )}
+                    </div>
+                    <Button className="w-full" disabled={loading} onClick={async () => {
+                      if (rareBookForm.title && rareBookForm.description && selectedFile && (document.getElementById('rare-book-cover-input') as HTMLInputElement)?.files?.[0]) {
+                        setLoading(true);
+                        try {
+                          const coverFile = (document.getElementById('rare-book-cover-input') as HTMLInputElement).files?.[0];
+                          const formData = new FormData();
+                          formData.append('file', selectedFile);
+                          if (coverFile) formData.append('coverImage', coverFile);
+                          formData.append('title', rareBookForm.title);
+                          formData.append('description', rareBookForm.description);
+                          formData.append('category', rareBookForm.category);
+                          formData.append('status', rareBookForm.status);
+
+                          const res = await fetch('/api/admin/rare-books', {
+                            method: 'POST',
+                            credentials: 'include',
+                            body: formData
+                          });
+
+                          if (res.ok) {
+                            setRareBookForm({ title: '', description: '', category: '', status: 'active' });
+                            setSelectedFile(null);
+                            // Clear the file inputs manually
+                            const fileInput = document.getElementById('rare-book-file-input') as HTMLInputElement;
+                            if (fileInput) fileInput.value = '';
+                            const coverInput = document.getElementById('rare-book-cover-input') as HTMLInputElement;
+                            if (coverInput) coverInput.value = '';
+
+                            await fetchRareBooks();
+                            toast({ title: 'Success', description: 'Rare book and cover added successfully' });
+                          } else {
+                            const error = await res.json();
+                            toast({ title: 'Error', description: error.message || error.error || 'Failed to add rare book', variant: 'destructive' });
+                          }
+                        } catch (err) {
+                          console.error('Upload error:', err);
+                          toast({ title: 'Error', description: 'Failed to upload rare book', variant: 'destructive' });
+                        } finally {
+                          setLoading(false);
+                        }
+                      } else {
+                        toast({ title: 'Required', description: 'All fields including PDF and Cover Image are required', variant: 'destructive' });
+                      }
+                    }}>
+                      {loading ? 'Uploading...' : 'Add Rare Book'}
+                    </Button>
+                  </div>
+                </Card>
+
+                {/* Rare Books List */}
+                <div className="lg:col-span-2">
+                  {loading && !rareBooks.length ? (
+                    <p className="text-muted-foreground">Loading...</p>
+                  ) : !rareBooks || rareBooks.length === 0 ? (
+                    <p className="text-muted-foreground">No rare books yet. Add one to get started!</p>
+                  ) : (
+                    <Card className="p-4 overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="border-b">
+                          <tr>
+                            <th className="text-left py-2 px-2">Title</th>
+                            <th className="text-left py-2 px-2">Category</th>
+                            <th className="text-left py-2 px-2">Status</th>
+                            <th className="text-center py-2 px-2">Actions</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {rareBooks.map((book: any) => (
+                            <tr key={book.id} className="border-b hover:bg-muted/30">
+                              <td className="py-2 px-2 font-black text-primary drop-shadow-sm">{book.title}</td>
+                              <td className="py-2 px-2 font-bold text-amber-700">
+                                <span className="px-2 py-0.5 bg-amber-50 rounded-md border border-amber-100">{book.category}</span>
+                              </td>
+                              <td className="py-2 px-2">
+                                <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold uppercase tracking-wider ${book.status === 'active' ? 'bg-emerald-100 text-emerald-700 shadow-sm' : 'bg-rose-100 text-rose-700 shadow-sm'}`}>
+                                  {book.status}
+                                </span>
+                              </td>
+                              <td className="py-2 px-2 text-center space-x-2">
+                                {book.pdfPath && (
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={() => {
+                                      const url = `/api/rare-books/stream/${book.id}`;
+                                      window.open(url, '_blank');
+                                    }}
+                                    title="Preview PDF"
+                                  >
+                                    <Eye size={14} />
+                                  </Button>
+                                )}
+                                <Button size="sm" variant="outline" onClick={() => toggleRareBookStatus(book.id)}>
+                                  {book.status === 'active' ? 'Hide' : 'Show'}
+                                </Button>
+                                <Button size="sm" variant="outline" onClick={() => deleteRareBook(book.id)} className="text-destructive">
+                                  <Trash2 size={14} />
+                                </Button>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </Card>
+                  )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {activeModule === 'books-details' && (
+            <Books />
+          )}
+          {/* Events Module */}
+          {activeModule === 'events' && (
+            <div>
+              <div className="flex justify-between items-center mb-6">
+                <h2 className="text-3xl font-bold">Events Management</h2>
+                <div className="flex gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => fetchEvents()}
+                    className="gap-2"
+                  >
+                    <RefreshCw size={16} /> Refresh
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadExcel(events, 'Events-List', 'events')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> Excel
+                  </Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => downloadPDF('Events Report', events, 'events')}
+                    className="gap-2"
+                  >
+                    <Download size={16} /> PDF
+                  </Button>
+                </div>
+              </div>
+
+              <Card className="p-6 mb-8">
+                <h3 className="text-xl font-semibold mb-4">Add New Event</h3>
+                <form onSubmit={handleEventSubmit} className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Event Title</label>
+                      <Input
+                        required
+                        value={eventForm.title}
+                        onChange={(e) => setEventForm({ ...eventForm, title: e.target.value })}
+                        placeholder="Annual Prize Distribution"
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <label className="text-sm font-medium">Event Date</label>
+                      <Input
+                        type="date"
+                        value={eventForm.date}
+                        onChange={(e) => setEventForm({ ...eventForm, date: e.target.value })}
+                      />
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Description</label>
+                    <textarea
+                      required
+                      className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                      value={eventForm.description}
+                      onChange={(e) => setEventForm({ ...eventForm, description: e.target.value })}
+                      placeholder="Describe the event details..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Event Images (Multiple allowed)</label>
+                    <Input
+                      id="eventImages"
+                      type="file"
+                      multiple
+                      accept="image/*"
+                    />
+                  </div>
+                  <Button type="submit" disabled={loading} className="w-full">
+                    {loading ? 'Adding Event...' : 'Add Event'}
+                  </Button>
+                </form>
+              </Card>
+
+              {loading ? (
+                <p className="text-muted-foreground">Loading events...</p>
+              ) : events.length === 0 ? (
+                <p className="text-muted-foreground">No events found</p>
+              ) : (
+                <div className="grid grid-cols-1 gap-6">
+                  {events.map((event: any) => (
+                    <Card key={event.id} className="overflow-hidden hover:shadow-xl transition-all duration-300 border-none bg-gradient-to-br from-white to-slate-50/50 group">
+                      <div className="flex flex-col md:flex-row gap-0">
+                        {event.images && event.images.length > 0 && (
+                          <div className="md:w-64 h-48 md:h-auto overflow-hidden shrink-0 relative">
+                            <img
+                              src={event.images[0]}
+                              alt={event.title}
+                              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                            />
+                            <div className="absolute top-2 left-2 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full shadow-sm">
+                              <div className="flex items-center gap-1.5 text-primary text-xs font-bold">
+                                <BarChart3 size={12} /> Gallery
+                              </div>
                             </div>
-                          )}
+                          </div>
+                        )}
+                        <div className="flex-1 p-6 relative">
+                          <div className="flex justify-between items-start mb-4">
+                            <div>
+                              <div className="flex items-center gap-2 mb-2">
+                                <span className="px-2 py-0.5 bg-primary/10 text-primary text-[10px] font-black uppercase tracking-widest rounded">Event</span>
+                                {event.date && (
+                                  <span className="text-slate-500 text-xs font-medium flex items-center gap-1">
+                                    <RefreshCw size={12} className="animate-spin-slow" /> {new Date(event.date).toLocaleDateString(undefined, { day: 'numeric', month: 'short', year: 'numeric' })}
+                                  </span>
+                                )}
+                              </div>
+                              <h4 className="font-black text-2xl text-slate-800 group-hover:text-primary transition-colors">{event.title}</h4>
+                            </div>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteEvent(event.id)}
+                              className="text-slate-300 hover:text-destructive transition-colors shrink-0"
+                            >
+                              <Trash2 size={20} />
+                            </Button>
+                          </div>
+                          <p className="text-slate-600 mb-6 leading-relaxed line-clamp-3 text-sm">{event.description}</p>
+
+                          <div className="flex flex-wrap gap-2 mt-auto">
+                            {event.images?.slice(1, 6).map((img: string, idx: number) => (
+                              <div key={idx} className="w-12 h-12 rounded-lg overflow-hidden border-2 border-white shadow-sm hover:z-10 hover:scale-110 transition-transform cursor-pointer">
+                                <img
+                                  src={img}
+                                  alt={`Event element ${idx}`}
+                                  className="w-full h-full object-cover"
+                                />
+                              </div>
+                            ))}
+                            {event.images?.length > 6 && (
+                              <div className="w-12 h-12 rounded-lg bg-slate-100 flex items-center justify-center text-[10px] font-bold text-slate-400 border-2 border-white shadow-sm">
+                                +{event.images.length - 6}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </Card>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-      </motion.div>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
+        </motion.div>
+      </main>
     </div>
   );
 };

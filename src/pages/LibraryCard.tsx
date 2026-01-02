@@ -26,6 +26,8 @@ import {
   ArrowLeft,
   Download,
   CreditCard,
+  Eye,
+  EyeOff,
 } from "lucide-react";
 import { jsPDF } from "jspdf";
 import collegeLogo from "@/assets/images/college-logo.png";
@@ -56,7 +58,6 @@ const getFieldCode = (field: string): string => {
   };
   return fieldCodeMap[field] || "XX";
 };
-
 interface FormData {
   firstName: string;
   lastName: string;
@@ -71,6 +72,7 @@ interface FormData {
   addressCity: string;
   addressState: string;
   addressZip: string;
+  password?: string;
 }
 
 interface SubmissionResult {
@@ -84,6 +86,7 @@ interface SubmissionResult {
 const LibraryCard = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
   const [submissionResult, setSubmissionResult] = useState<SubmissionResult | null>(null);
   const [formData, setFormData] = useState<FormData>({
     firstName: "",
@@ -99,6 +102,7 @@ const LibraryCard = () => {
     addressCity: "",
     addressState: "",
     addressZip: "",
+    password: "",
   });
   const { toast } = useToast();
   const { user } = useAuth();
@@ -120,10 +124,10 @@ const LibraryCard = () => {
   };
 
   const validateStep2 = () => {
-    if (!formData.email || !formData.phone) {
+    if (!formData.email || !formData.phone || !formData.password) {
       toast({
         title: "Missing Information",
-        description: "Please fill in all required fields.",
+        description: "Please fill in all required fields including password.",
         variant: "destructive",
       });
       return false;
@@ -133,6 +137,14 @@ const LibraryCard = () => {
       toast({
         title: "Invalid Email",
         description: "Please enter a valid email address.",
+        variant: "destructive",
+      });
+      return false;
+    }
+    if (formData.password.length < 6) {
+      toast({
+        title: "Weak Password",
+        description: "Password must be at least 6 characters long.",
         variant: "destructive",
       });
       return false;
@@ -181,6 +193,7 @@ const LibraryCard = () => {
         addressCity: formData.addressCity,
         addressState: formData.addressState,
         addressZip: formData.addressZip,
+        password: formData.password,
       });
 
       const data = await res.json();
@@ -214,7 +227,7 @@ const LibraryCard = () => {
 
     const doc = new jsPDF();
     const { cardNumber, studentId, issueDate, validThrough, formData } = submissionResult;
-    
+
     const qrDestination = `https://gcmn-library.replit.dev/library-card/${cardNumber}`;
     const qrCodeUrl = getQRCodeUrl(qrDestination, 100);
     const response = await fetch(qrCodeUrl);
@@ -228,7 +241,7 @@ const LibraryCard = () => {
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = collegeLogo;
-    
+
     await new Promise((resolve) => {
       logoImg.onload = resolve;
     });
@@ -488,19 +501,17 @@ const LibraryCard = () => {
             {[1, 2, 3].map((s) => (
               <div key={s} className="flex items-center">
                 <div
-                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${
-                    s <= step
-                      ? "bg-primary text-primary-foreground"
-                      : "bg-muted text-muted-foreground"
-                  }`}
+                  className={`w-10 h-10 rounded-full flex items-center justify-center font-bold transition-colors ${s <= step
+                    ? "bg-primary text-primary-foreground"
+                    : "bg-muted text-muted-foreground"
+                    }`}
                 >
                   {s}
                 </div>
                 {s < 3 && (
                   <div
-                    className={`w-16 h-1 mx-2 transition-colors ${
-                      s < step ? "bg-primary" : "bg-muted"
-                    }`}
+                    className={`w-16 h-1 mx-2 transition-colors ${s < step ? "bg-primary" : "bg-muted"
+                      }`}
                   />
                 )}
               </div>
@@ -650,6 +661,30 @@ const LibraryCard = () => {
                         placeholder="Enter phone number"
                         data-testid="input-phone"
                       />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="password">Login Password *</Label>
+                      <div className="relative">
+                        <Input
+                          id="password"
+                          type={showPassword ? "text" : "password"}
+                          value={formData.password}
+                          onChange={(e) => handleInputChange("password", e.target.value)}
+                          placeholder="Create a password for your card login"
+                          data-testid="input-card-password"
+                          className="pr-10"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                        >
+                          {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                        </button>
+                      </div>
+                      <p className="text-xs text-amber-700 bg-amber-50 border border-amber-200 p-2 rounded-md font-medium">
+                        You must remember your password. This password will be required when logging in with your Card ID.
+                      </p>
                     </div>
                     <div className="flex justify-between pt-4">
                       <Button variant="outline" onClick={handleBack} className="gap-2" data-testid="button-back-step2">
