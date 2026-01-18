@@ -1,5 +1,6 @@
 import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
+import MemoryStoreFactory from "memorystore";
 import { createServer } from "http";
 import path from "path";
 import { registerRoutes } from "./routes.js";
@@ -15,11 +16,11 @@ declare module "express-session" {
 }
 
 const app = express();
+app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use(express.json({ limit: '1024mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1024mb' }));
 
-const memorystore = (await import("memorystore")).default;
-const MemoryStore = (memorystore as any)(session);
+const MemoryStore = MemoryStoreFactory(session);
 
 // Early non-blocking init for Vercel
 if (process.env.VERCEL) {
