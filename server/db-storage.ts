@@ -8,7 +8,7 @@ const SUPABASE_URL = process.env.SUPABASE_URL;
 const SUPABASE_KEY = process.env.SUPABASE_KEY;
 
 if (!SUPABASE_URL || !SUPABASE_KEY) {
-    throw new Error("Missing Supabase URL or Key in environment variables");
+    console.warn("WARNING: Missing Supabase URL or Key in environment variables. Database features will fail until these are set in Vercel settings.");
 }
 
 const SUPABASE_BACKEND_SECRET = process.env.SUPABASE_BACKEND_SECRET || 'admin-backend-secret-8829';
