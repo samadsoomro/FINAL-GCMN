@@ -91,6 +91,10 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
+  if (process.env.VERCEL) {
+    return;
+  }
+
   const port = 5000;
   server.listen(
     {
@@ -102,3 +106,5 @@ app.use((req, res, next) => {
     }
   );
 })();
+
+export default app;
