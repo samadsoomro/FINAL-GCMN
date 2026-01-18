@@ -18,7 +18,8 @@ const app = express();
 app.use(express.json({ limit: '1024mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1024mb' }));
 
-const MemoryStore = (await import("memorystore")).default(session);
+const memorystore = await import("memorystore");
+const MemoryStore = ((memorystore as any).default || memorystore)(session);
 
 // Middleware and session setup...
 app.use(
