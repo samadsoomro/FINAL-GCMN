@@ -13,13 +13,15 @@ if (!SUPABASE_URL || !SUPABASE_KEY) {
 
 const SUPABASE_BACKEND_SECRET = process.env.SUPABASE_BACKEND_SECRET || 'admin-backend-secret-8829';
 
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY, {
-    global: {
-        headers: {
-            'x-backend-secret': SUPABASE_BACKEND_SECRET
+const supabase = SUPABASE_URL && SUPABASE_KEY
+    ? createClient(SUPABASE_URL, SUPABASE_KEY, {
+        global: {
+            headers: {
+                'x-backend-secret': SUPABASE_BACKEND_SECRET
+            }
         }
-    }
-});
+    })
+    : null as any;
 
 function generateId(): string {
     // Using randomBytes(8) hex to match old method behavior, 
@@ -96,6 +98,10 @@ const BLOG_SELECT = 'id, title, slug, shortDescription:short_description, conten
 
 class DbStorage {
     async init() {
+        if (!supabase) {
+            console.error("Supabase client not initialized - missing environment variables.");
+            return;
+        }
         const { error } = await supabase.from('users').select('id').limit(1);
         if (error) {
             console.error("Supabase connection error:", error);
