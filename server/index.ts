@@ -20,6 +20,7 @@ app.use(express.urlencoded({ extended: false, limit: '1024mb' }));
 
 const MemoryStore = (await import("memorystore")).default(session);
 
+// Middleware and session setup...
 app.use(
   session({
     cookie: { maxAge: 86400000 },
@@ -62,19 +63,37 @@ app.use((req, res, next) => {
   next();
 });
 
+// 1. Sync registration
+registerRoutes(app);
+
+// 2. Error handling middleware
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  const status = err.status || err.statusCode || 500;
+  const message = err.message || "Internal Server Error";
+  res.status(status).json({ message });
+  if (app.get("env") === "development") {
+    console.error(err);
+  }
+});
+
+// 3. Static files
+if (app.get("env") === "development") {
+  // We'll initialize Vite in the async block below
+} else {
+  serveStatic(app);
+}
+
+// 4. Async initialization (DB check, Server start)
 (async () => {
-  // Initialize JSON storage
-  await storage.init();
+  try {
+    await storage.init();
+  } catch (e) {
+    log("Storage initialization failed: " + (e as Error).message);
+  }
 
-  registerRoutes(app);
-
-  app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
-    const status = err.status || err.statusCode || 500;
-    const message = err.message || "Internal Server Error";
-
-    res.status(status).json({ message });
-    throw err;
-  });
+  if (process.env.VERCEL) {
+    return;
+  }
 
   const server = createServer(app);
   server.timeout = 600000;
@@ -87,12 +106,6 @@ app.use((req, res, next) => {
 
   if (app.get("env") === "development") {
     await setupVite(app, server);
-  } else {
-    serveStatic(app);
-  }
-
-  if (process.env.VERCEL) {
-    return;
   }
 
   const port = 5000;
