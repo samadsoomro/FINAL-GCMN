@@ -174,16 +174,15 @@ const Books = () => {
                       book={{
                         book_id: book.id,
                         title: book.bookName,
-                        author: '',
-                        category: '',
+                        author: 'Unknown',
+                        category: 'General',
                         description: book.description,
                         cover_image: book.bookImage,
-                        image: book.bookImage,
                         isbn: '',
-                        available: parseInt(book.availableCopies || "0") > 0,
                         status: parseInt(book.availableCopies || "0") > 0 ? 'available' : 'unavailable',
                         total_copies: parseInt(book.totalCopies || "0"),
-                        available_copies: parseInt(book.availableCopies || "0")
+                        available_copies: parseInt(book.availableCopies || "0"),
+                        publication_year: new Date(book.createdAt).getFullYear(),
                       }}
                       onBorrow={() => handleBorrow(book)}
                       onViewDetails={() => handleViewDetails(book)}
