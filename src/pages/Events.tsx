@@ -55,7 +55,7 @@ const EventsPage: React.FC = () => {
             initial={{ y: 20, opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
           >
-            Library Events
+            College Events
           </motion.h1>
           <motion.p
             className="text-lg text-muted-foreground max-w-2xl mx-auto"
@@ -96,7 +96,7 @@ const EventsPage: React.FC = () => {
                           {event.title}
                         </h2>
                       </div>
-                      
+
                       <p className="text-muted-foreground leading-relaxed text-lg whitespace-pre-wrap">
                         {event.description}
                       </p>
@@ -106,9 +106,9 @@ const EventsPage: React.FC = () => {
                       {event.images && event.images.length > 0 ? (
                         <div className="grid grid-cols-1 gap-4 w-full">
                           <div className="aspect-video relative rounded-lg overflow-hidden border shadow-inner bg-background">
-                            <img 
-                              src={event.images[0]} 
-                              alt={event.title} 
+                            <img
+                              src={event.images[0]}
+                              alt={event.title}
                               className="w-full h-full object-cover"
                             />
                           </div>

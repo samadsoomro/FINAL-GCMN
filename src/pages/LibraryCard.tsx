@@ -225,11 +225,13 @@ const LibraryCard = () => {
   const generatePDF = async () => {
     if (!submissionResult) return;
 
-    const doc = new jsPDF();
+    const doc = new jsPDF("p", "mm", "a4");
     const { cardNumber, studentId, issueDate, validThrough, formData } = submissionResult;
 
     const qrDestination = `https://gcmn-library.replit.dev/library-card/${cardNumber}`;
     const qrCodeUrl = getQRCodeUrl(qrDestination, 100);
+
+    // Fetch QR Code
     const response = await fetch(qrCodeUrl);
     const blob = await response.blob();
     const qrCodeDataUrl = await new Promise<string>((resolve) => {
@@ -238,162 +240,193 @@ const LibraryCard = () => {
       reader.readAsDataURL(blob);
     });
 
+    // Load Logo
     const logoImg = new Image();
     logoImg.crossOrigin = "anonymous";
     logoImg.src = collegeLogo;
-
     await new Promise((resolve) => {
       logoImg.onload = resolve;
     });
 
+    // Draw Logo to Canvas to get Data URL (standardize format)
     const canvas = document.createElement('canvas');
     canvas.width = logoImg.width;
     canvas.height = logoImg.height;
     const ctx = canvas.getContext('2d');
     ctx?.drawImage(logoImg, 0, 0);
-    const logoDataUrl = canvas.toDataURL('image/jpeg', 0.6);
+    const logoDataUrl = canvas.toDataURL('image/jpeg', 0.8);
 
-    doc.setFillColor(255, 255, 255);
-    doc.setDrawColor(22, 78, 59);
-    doc.setLineWidth(2);
-    doc.roundedRect(15, 15, 180, 120, 5, 5, "FD");
+    // --- CONSTANTS ---
+    const pageW = 210;
+    const margin = 15;
+    const boxW = 180;
+    const boxH = 120; // Approx half page
+    const topY = 15;  // Top box start Y
+    const botY = 150; // Bottom box start Y
+    const greenColor: [number, number, number] = [22, 78, 59];
+    const whiteColor: [number, number, number] = [255, 255, 255];
 
-    doc.setFillColor(22, 78, 59);
-    doc.rect(15, 15, 180, 35, "F");
+    // ==========================================
+    // TOP HALF - FRONT SIDE
+    // ==========================================
 
-    doc.addImage(logoDataUrl, "JPEG", 20, 17, 30, 30);
+    // Border
+    doc.setDrawColor(...greenColor);
+    doc.setLineWidth(0.8);
+    doc.rect(margin, topY, boxW, boxH);
 
-    doc.setTextColor(255, 255, 255);
+    // Header Background (Green Strip)
+    doc.setFillColor(...greenColor);
+    doc.rect(margin, topY, boxW, 28, "F");
+
+    // Logo
+    doc.addImage(logoDataUrl, "JPEG", margin + 5, topY + 2, 24, 24);
+
+    // Header Text (White on Green)
+    doc.setTextColor(...whiteColor);
+    doc.setFont("helvetica", "normal");
     doc.setFontSize(8);
-    doc.setFont("helvetica", "normal");
-    doc.text("Government of Sindh", 125, 22, { align: "center" });
-    doc.text("College Education Department", 125, 27, { align: "center" });
+    doc.text("Government of Sindh", pageW / 2, topY + 8, { align: "center" });
+    doc.text("College Education Department", pageW / 2, topY + 12, { align: "center" });
 
-    doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
-    doc.text("GOVT COLLEGE FOR MEN NAZIMABAD", 125, 37, { align: "center" });
+    doc.setFontSize(12);
+    doc.text("GOVT COLLEGE FOR MEN NAZIMABAD", pageW / 2, topY + 19, { align: "center" });
 
     doc.setFontSize(10);
-    doc.setTextColor(22, 78, 59);
-    doc.text("LIBRARY CARD", 105, 57, { align: "center" });
+    doc.text("LIBRARY CARD", pageW / 2, topY + 25, { align: "center" });
 
-    doc.setDrawColor(22, 78, 59);
-    doc.setLineWidth(0.5);
-    doc.line(25, 60, 185, 60);
+    // --- DETAILS SECTION ---
+    doc.setTextColor(0, 0, 0);
+    const detailsX = margin + 10;
+    let currentY = topY + 36;
+    const lineHeight = 6.5;
 
-    doc.setFontSize(9);
-    doc.setTextColor(60, 60, 60);
-    doc.setFont("helvetica", "normal");
+    // Photo Box (Right side)
+    const photoW = 30;
+    const photoH = 35;
+    const photoX = margin + boxW - photoW - 10;
+    const photoY = topY + 35;
 
-    const leftX = 25;
-    let y = 68;
-    const lineHeight = 7;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Name:", leftX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${formData.firstName} ${formData.lastName}`, leftX + 25, y);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Father Name:", leftX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(formData.fatherName, leftX + 32, y);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Date of Birth:", leftX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(new Date(formData.dob).toLocaleDateString('en-GB'), leftX + 32, y);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Class:", leftX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(formData.studentClass, leftX + 18, y);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Field:", leftX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(`${formData.field} (${getFieldCode(formData.field)})`, leftX + 18, y);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Roll Number:", leftX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(formData.rollNo, leftX + 28, y);
-
-    const rightX = 115;
-    y = 68;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Library Card ID:", rightX, y);
-    doc.setFont("helvetica", "normal");
-    doc.setTextColor(22, 78, 59);
-    doc.setFontSize(10);
-    doc.text(cardNumber, rightX + 35, y);
-    doc.setTextColor(60, 60, 60);
-    doc.setFontSize(9);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Student ID:", rightX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(studentId, rightX + 25, y);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Issue Date:", rightX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(new Date(issueDate).toLocaleDateString('en-GB'), rightX + 25, y);
-    y += lineHeight;
-
-    doc.setFont("helvetica", "bold");
-    doc.text("Valid Through:", rightX, y);
-    doc.setFont("helvetica", "normal");
-    doc.text(new Date(validThrough).toLocaleDateString('en-GB'), rightX + 30, y);
-
-    doc.addImage(qrCodeDataUrl, "JPEG", 150, 92, 30, 30, undefined, "FAST");
-
-    doc.setDrawColor(100, 100, 100);
+    doc.setDrawColor(0, 0, 0);
     doc.setLineWidth(0.3);
-    doc.line(25, 125, 70, 125);
+    doc.rect(photoX, photoY, photoW, photoH);
     doc.setFontSize(7);
     doc.setTextColor(100, 100, 100);
-    doc.text("Principal's Signature", 47.5, 130, { align: "center" });
+    doc.text("Paste", photoX + photoW / 2, photoY + photoH / 2 - 2, { align: "center" });
+    doc.text("Photograph", photoX + photoW / 2, photoY + photoH / 2 + 2, { align: "center" });
+    doc.text("Here", photoX + photoW / 2, photoY + photoH / 2 + 6, { align: "center" });
 
-    doc.setFillColor(245, 245, 245);
-    doc.setDrawColor(22, 78, 59);
-    doc.setLineWidth(2);
-    doc.roundedRect(15, 150, 180, 80, 5, 5, "FD");
-
-    doc.setFillColor(22, 78, 59);
-    doc.rect(15, 150, 180, 15, "F");
-
-    doc.setTextColor(255, 255, 255);
+    // Details Content
+    doc.setTextColor(0, 0, 0);
     doc.setFontSize(10);
-    doc.setFont("helvetica", "bold");
-    doc.text("TERMS & CONDITIONS", 105, 159, { align: "center" });
 
-    doc.setTextColor(60, 60, 60);
-    doc.setFontSize(8);
+    const labelW = 35;
+
+    const addDetail = (label: string, value: string, boldValue = false, highlight = false) => {
+      doc.setFont("helvetica", "bold");
+      doc.text(label, detailsX, currentY);
+
+      if (highlight) {
+        doc.setTextColor(...greenColor);
+        doc.setFontSize(11);
+        doc.setFont("helvetica", "bold");
+        doc.text(value, detailsX + labelW, currentY);
+        doc.setFontSize(10); // Reset
+        doc.setTextColor(0, 0, 0);
+        doc.setFont("helvetica", "normal");
+      } else {
+        doc.setFont("helvetica", boldValue ? "bold" : "normal");
+        doc.text(value, detailsX + labelW, currentY);
+      }
+      currentY += lineHeight;
+    };
+
+    addDetail("Name:", `${formData.firstName} ${formData.lastName}`, true, true);
+    addDetail("Father Name:", formData.fatherName || "-");
+    addDetail("Date of Birth:", new Date(formData.dob).toLocaleDateString('en-GB'));
+    addDetail("Class:", formData.studentClass, true, true);
+    addDetail("Field:", `${formData.field} (${getFieldCode(formData.field)})`, true, true);
+    addDetail("Roll Number:", formData.rollNo);
+
+    // HIGHLIGHT LIBRARY CARD ID
+    currentY += 1; // Extra spacing
+    addDetail("Library Card ID:", cardNumber, true, true);
+    currentY += 1;
+
+    addDetail("Issue Date:", new Date(issueDate).toLocaleDateString('en-GB'));
+    addDetail("Valid Through:", new Date(validThrough).toLocaleDateString('en-GB'));
+
+    // QR Code (Bottom Right of Front Box)
+    const qrSize = 25;
+    const qrX = margin + boxW - qrSize - 10;
+    const qrY = topY + boxH - qrSize - 10;
+    doc.addImage(qrCodeDataUrl, "JPEG", qrX, qrY, qrSize, qrSize);
+
+    // Signature (Between Valid Through text and QR Code)
+    const sigLineX = detailsX + 80;
+    const sigLineY = qrY + qrSize - 5;
+    const sigLineW = 45;
+
+    doc.setDrawColor(0, 0, 0);
+    doc.setLineWidth(0.5);
+    doc.line(sigLineX, sigLineY, sigLineX + sigLineW, sigLineY);
     doc.setFont("helvetica", "normal");
+    doc.setFontSize(7);
+    doc.text("Principal's Signature", sigLineX + sigLineW / 2, sigLineY + 4, { align: "center" });
 
-    const disclaimerY = 172;
-    const disclaimerLines = [
-      "This card is NOT TRANSFERABLE.",
-      "If lost, stolen, or damaged, report immediately to the GCMN Library.",
-      "The college is not responsible for misuse.",
-      "If found, please return to Government College for Men Nazimabad.",
-      "",
-      "Contact: Library, GCMN, Nazimabad, Karachi",
-      "Email: library@gcmn.edu.pk"
+    // ==========================================
+    // BOTTOM HALF - BACK SIDE
+    // ==========================================
+
+    // Border
+    doc.setDrawColor(...greenColor);
+    doc.setLineWidth(0.8);
+    doc.rect(margin, botY, boxW, boxH);
+
+    // Title
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(14);
+    doc.text("TERMS & CONDITIONS", pageW / 2, botY + 15, { align: "center" });
+
+    // Content
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(9); // Reduced size to fit
+    doc.setTextColor(0, 0, 0);
+
+    let termY = botY + 25;
+    const termX = margin + 12;
+    const termSpacing = 5;
+
+    const terms = [
+      "• Login using your Library Card ID",
+      "  Example: CS-E-99-12",
+      "• Use the password created at the time of application.",
+      "• Your library card will work only after approval by the library administration.",
+      "• If you forget your password:",
+      "  - Contact the library",
+      "  - Your existing card will be deleted",
+      "  - You must apply again for a new library card",
+      "• This card is NOT TRANSFERABLE.",
+      "• If lost, stolen, or damaged, report immediately to the GCMN Library.",
+      "• The college is not responsible for misuse of the card.",
+      "• If found, please return to Government College for Men Nazimabad.",
     ];
 
-    disclaimerLines.forEach((line, index) => {
-      doc.text(line, 25, disclaimerY + (index * 7));
+    terms.forEach(line => {
+      doc.text(line, termX, termY);
+      termY += termSpacing;
     });
+
+    // Contact Details
+    termY += 4;
+    doc.setFont("helvetica", "bold");
+    doc.text("CONTACT DETAILS:", termX, termY);
+    termY += termSpacing;
+    doc.setFont("helvetica", "normal");
+    doc.text("Library, GCMN, Nazimabad, Karachi", termX, termY);
+    termY += termSpacing;
+    doc.text("Email: library@gcmn.edu.pk", termX, termY);
 
     doc.save(`library-card-${cardNumber}.pdf`);
   };

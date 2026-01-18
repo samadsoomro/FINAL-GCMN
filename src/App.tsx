@@ -26,6 +26,9 @@ import Register from "@/pages/Register";
 import LibraryCard from "@/pages/LibraryCard";
 import Donate from "@/pages/Donate";
 import Events from "@/pages/Events";
+import NotificationsPage from "@/pages/Notifications";
+import Blog from "@/pages/Blog";
+import BlogPost from "@/pages/BlogPost";
 import AdminDashboard from "@/pages/AdminDashboard";
 import AdminMessages from "@/pages/admin/Messages";
 import BorrowedBooks from "@/pages/admin/BorrowedBooks";
@@ -52,6 +55,9 @@ const AnimatedRoutes = () => {
         <Route path="/library-card" element={<PageTransition><LibraryCard /></PageTransition>} />
         <Route path="/donate" element={<PageTransition><Donate /></PageTransition>} />
         <Route path="/events" element={<PageTransition><Events /></PageTransition>} />
+        <Route path="/notifications" element={<PageTransition><NotificationsPage /></PageTransition>} />
+        <Route path="/blog" element={<PageTransition><Blog /></PageTransition>} />
+        <Route path="/blog/:slug" element={<PageTransition><BlogPost /></PageTransition>} />
         <Route path="/admin-dashboard" element={<AdminDashboard />} />
         <Route
           path="/admin/messages"

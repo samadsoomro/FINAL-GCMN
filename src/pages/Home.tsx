@@ -2,6 +2,9 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import Hero from '@/components/layout/Hero';
 import { BookOpen, Users, Award, TrendingUp } from 'lucide-react';
+import biekLogo from '@/assets/images/affiliations/biek-logo.png';
+import seccapLogo from '@/assets/images/affiliations/seccap-logo.png';
+import dgcsLogo from '@/assets/images/affiliations/dgcs-logo.png';
 
 const Home: React.FC = () => {
   const stats = [
@@ -131,6 +134,75 @@ const Home: React.FC = () => {
                 </p>
               </motion.div>
             ))}
+          </div>
+        </div>
+      </section>
+
+
+      {/* College Affiliations Section */}
+      <section className="py-16 lg:py-24 bg-white">
+        <div className="container">
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <motion.h2
+              className="text-3xl lg:text-4xl font-bold text-foreground mb-4"
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              viewport={{ once: true }}
+            >
+              College Affiliations & Authorities
+            </motion.h2>
+          </div>
+
+          <div className="flex flex-col gap-8 max-w-5xl mx-auto">
+            {/* Row 1: BIEK & SECCAP */}
+            <div className="flex flex-col md:flex-row justify-center items-center gap-12 md:gap-24">
+              {/* BIEK */}
+              <motion.a
+                href="https://biek.edu.pk"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 group hover:opacity-90 transition-opacity"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.1 }}
+                viewport={{ once: true }}
+              >
+                <img src={biekLogo} alt="BIEK Logo" className="w-24 h-24 lg:w-28 lg:h-28 object-contain" />
+                <span className="text-2xl lg:text-3xl font-bold text-neutral-800 tracking-tight">BIEK</span>
+              </motion.a>
+
+              {/* SECCAP */}
+              <motion.a
+                href="https://seccap.dgcs.gos.pk/?fbclid=IwY2xjawPV3S9leHRuA2FlbQIxMABicmlkETFHWmpIVFdSUWV1M2VVazJxc3J0YwZhcHBfaWQQMjIyMDM5MTc4ODIwMDg5MgABHv0bwUTzk8V0XckBH0ATIYLf-grT6jLOr61zQK5R82p8EkQ6u7GjgT_Cg05x_aem_OnkzP8dOiNzzGxVl70F-jQ#/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-4 group hover:opacity-90 transition-opacity"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.2 }}
+                viewport={{ once: true }}
+              >
+                <img src={seccapLogo} alt="SECCAP Logo" className="w-24 h-24 lg:w-28 lg:h-28 object-contain" />
+                <span className="text-2xl lg:text-3xl font-bold text-neutral-800 tracking-tight">SECCAP</span>
+              </motion.a>
+            </div>
+
+            {/* Row 2: DGCS */}
+            <div className="flex justify-center w-full mt-8 md:mt-4">
+              <motion.a
+                href="https://www.dgcs.gos.pk/index.php?#top"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full max-w-3xl px-4 group hover:opacity-90 transition-opacity"
+                initial={{ opacity: 0, y: 20 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.3 }}
+                viewport={{ once: true }}
+              >
+                <img src={dgcsLogo} alt="Directorate General Colleges Sindh" className="w-full h-auto object-contain mx-auto" />
+              </motion.a>
+            </div>
           </div>
         </div>
       </section>

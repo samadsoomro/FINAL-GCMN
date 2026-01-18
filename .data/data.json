@@ -15,7 +15,7 @@
   "bookBorrows": [],
   "libraryCardApplications": [
     {
-      "id": "21e18a5a6c332cd5",
+      "id": "959d72f23eecb757",
       "userId": null,
       "firstName": "Abdul",
       "lastName": "Samad",
@@ -25,27 +25,93 @@
       "phone": "03322247950",
       "field": "Computer Science",
       "rollNo": "E-09",
-      "class": "Class 11",
-      "addressStreet": "House No.A-5, Secter 11-B, North Karachi",
-      "addressCity": "Karachi",
+      "class": "Class 12",
       "addressState": "Sindh",
       "addressZip": "75850",
+      "password": "$2b$10$Z1tO5BheSPv6aV7tBe7IdOJ5BDSoiT3ZMlLEoT80HA7/Gc8ByR1Wq",
       "status": "approved",
-      "cardNumber": "CS-E-09-11",
-      "studentId": "GCMN-969194",
-      "issueDate": "2026-01-02",
-      "validThrough": "2027-01-02",
-      "createdAt": "2026-01-02T10:38:36.246Z",
-      "updatedAt": "2026-01-02T11:00:32.058Z"
+      "cardNumber": "CS-E-09-12",
+      "studentId": "GCMN-104507",
+      "issueDate": "2026-01-16",
+      "validThrough": "2027-01-16",
+      "createdAt": "2026-01-16T11:43:41.826Z",
+      "updatedAt": "2026-01-16T11:44:03.729Z"
     }
   ],
   "donations": [],
   "userRoles": [],
-  "notes": [],
-  "rareBooks": [],
+  "notes": [
+    {
+      "id": "380d8080acf0e627",
+      "class": "Class 12",
+      "subject": "Statistics",
+      "title": "STATISTICS(SCIENCE GENERAL)",
+      "description": "\r\nStatistics for CS/HM Groups, \r\nBIEK",
+      "pdfPath": "/server/uploads/1767441517026-4483826-Statistics-XII.pdf",
+      "status": "active",
+      "createdAt": "2026-01-03T11:58:38.527Z"
+    }
+  ],
+  "rareBooks": [
+    {
+      "id": "d4716bc159c4496a",
+      "title": "Statistics",
+      "description": "\r\nStatistics for CS/HM Groups, \r\nBIEK",
+      "category": "Education",
+      "pdfPath": "/server/uploads/1767441350602-109237345-Statistics-XII.pdf",
+      "coverImage": "/server/uploads/1767441351899-82703083-stats.jpg",
+      "status": "active",
+      "createdAt": "2026-01-03T11:55:51.912Z"
+    },
+    {
+      "id": "c6a90dd9defa6e8f",
+      "title": "Statistics-XI",
+      "description": "Statistics (science general)",
+      "category": "Education",
+      "pdfPath": "/server/uploads/1768541707808-453449691-STATISTICS PART - I (SCIENCE GENERAL)_11zon.pdf",
+      "coverImage": "/server/uploads/1768541708464-770303854-WhatsApp Image 2026-01-16 at 10.34.49 AM.jpeg",
+      "status": "active",
+      "createdAt": "2026-01-16T05:35:08.477Z"
+    }
+  ],
   "booksDetails": [],
-  "events": [],
-  "books": [],
+  "events": [
+    {
+      "id": "a1ae431b6063a713",
+      "title": "Quaid-e-Azam Quiz Competition",
+      "description": "A memorable group photo captured after winning the Quaid-e-Azam Quiz Competition, featuring the proud students with the Honorable Principal of Government College For Men, Nazimabad, the Senior Librarian, and esteemed professors, celebrating the victory with the winning trophy.",
+      "images": [
+        "/server/uploads/1767441245139-910304685-quiz-compitetion.jpg"
+      ],
+      "date": "2025-12-19",
+      "createdAt": "2026-01-03T11:54:05.192Z",
+      "updatedAt": "2026-01-03T11:54:05.192Z"
+    }
+  ],
+  "books": [
+    {
+      "id": "a9c67ce09a731909",
+      "bookName": "Maths-XII",
+      "shortIntro": "Maths for Pre and CS students",
+      "description": "Maths for Pre and CS students, Sindh Board",
+      "bookImage": "/server/uploads/1768567824918-644503358-download.jpg",
+      "totalCopies": "5",
+      "availableCopies": "5",
+      "updatedAt": "2026-01-16T12:50:24.925Z",
+      "createdAt": "2026-01-16T12:50:24.925Z"
+    },
+    {
+      "id": "16a9579c12ddeb95",
+      "bookName": "Statistics-XII",
+      "shortIntro": "Statistics for CS/HM Groups ",
+      "description": "\r\nStatistics for CS/HM Groups, \r\nBIEK",
+      "bookImage": "/server/uploads/1767441306071-693417997-stats.jpg",
+      "totalCopies": "45",
+      "availableCopies": "45",
+      "updatedAt": "2026-01-16T05:37:14.144Z",
+      "createdAt": "2026-01-03T11:55:06.080Z"
+    }
+  ],
   "students": [
     {
       "id": "b9ba9bae6bde4dae",
@@ -70,6 +136,29 @@
       "email": "samad.tab1@gmail.com",
       "phone": "03322247950",
       "createdAt": "2026-01-02T11:00:32.058Z"
+    },
+    {
+      "id": "0a95820fac6bb221",
+      "userId": "card-f473c33f9a6d3a44",
+      "cardId": "PE-E-500-12",
+      "name": "abdul soomro",
+      "class": "Class 12",
+      "field": "Pre-Engineering",
+      "rollNo": "E-500",
+      "email": "bookofgeopolitics@gmail.com",
+      "phone": "212121",
+      "createdAt": "2026-01-18T12:19:07.470Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "7ebcf3fc929cefa3",
+      "title": "hi",
+      "message": "supabase",
+      "image": null,
+      "pin": false,
+      "status": "active",
+      "createdAt": "2026-01-18T13:09:46.516Z"
     }
   ]
 }

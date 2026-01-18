@@ -4,7 +4,7 @@ import { createServer } from "http";
 import path from "path";
 import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
-import { storage } from "./json-storage";
+import { storage } from "./db-storage";
 
 declare module "express-session" {
   interface SessionData {
@@ -65,7 +65,7 @@ app.use((req, res, next) => {
 (async () => {
   // Initialize JSON storage
   await storage.init();
-  
+
   registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

@@ -1,11 +1,17 @@
-# Python-generated files
-__pycache__/
-*.py[oc]
-build/
-dist/
-wheels/
-*.egg-info
+# Environmental and data files
+.env
+.data/
+.gemini/
+.replit
+replit.md
 
-# Virtual environments
-.venv
-node_modules
+# Build and dependencies
+node_modules/
+dist/
+build/
+
+# IDE files
+.vscode/
+
+# Logs
+*.log

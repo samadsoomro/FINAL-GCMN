@@ -65,6 +65,7 @@ export const libraryCardApplications = pgTable("library_card_applications", {
   addressState: text("address_state").notNull(),
   addressZip: text("address_zip").notNull(),
   status: text("status").default("pending").notNull(),
+  password: text("password"),
   cardNumber: text("card_number").unique(),
   studentId: text("student_id"),
   issueDate: date("issue_date"),
@@ -181,6 +182,53 @@ export const events = pgTable("events", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
+export const notifications = pgTable("notifications", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: text("title").notNull(),
+  message: text("message"),
+  image: text("image"),
+  pin: boolean("pin").default(false).notNull(),
+  status: text("status").default("active").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
 export const insertEventSchema = createInsertSchema(events).omit({ id: true, createdAt: true, updatedAt: true });
 export type InsertEvent = z.infer<typeof insertEventSchema>;
 export type Event = typeof events.$inferSelect;
+
+export const insertNotificationSchema = createInsertSchema(notifications).omit({ id: true, createdAt: true });
+export type InsertNotification = z.infer<typeof insertNotificationSchema>;
+export type Notification = typeof notifications.$inferSelect;
+
+export const notes = pgTable("notes", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: text("title").notNull(),
+  description: text("description").notNull(),
+  subject: text("subject").notNull(),
+  class: text("class").notNull(),
+  pdfPath: text("pdf_path").notNull(),
+  status: text("status").default("active").notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const insertNoteSchema = createInsertSchema(notes).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertNote = z.infer<typeof insertNoteSchema>;
+
+export const blogPosts = pgTable("blog_posts", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: text("title").notNull(),
+  slug: text("slug").notNull().unique(),
+  shortDescription: text("short_description").notNull(),
+  content: text("content").notNull(),
+  featuredImage: text("featured_image"),
+  isPinned: boolean("is_pinned").default(false).notNull(),
+  status: text("status").default("draft").notNull(), // 'published' | 'draft'
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+export const insertBlogPostSchema = createInsertSchema(blogPosts).omit({ id: true, createdAt: true, updatedAt: true });
+export type InsertBlogPost = z.infer<typeof insertBlogPostSchema>;
+export type BlogPost = typeof blogPosts.$inferSelect;
+
