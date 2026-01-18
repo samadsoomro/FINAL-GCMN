@@ -18,12 +18,17 @@ const app = express();
 app.use(express.json({ limit: '1024mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1024mb' }));
 
-const memorystore = await import("memorystore");
-const MemoryStore = ((memorystore as any).default || memorystore)(session);
+const memorystore = (await import("memorystore")).default;
+const MemoryStore = (memorystore as any)(session);
 
 // Early non-blocking init for Vercel
 if (process.env.VERCEL) {
   storage.init().catch(e => log("Early storage init failed: " + e.message));
+}
+
+// In some Vercel environments, we need more robust path for static assets
+if (!process.env.VERCEL_STATIC_PATH) {
+  process.env.VERCEL_STATIC_PATH = path.resolve(process.cwd(), "dist", "public");
 }
 
 // Middleware and session setup...
