@@ -2,9 +2,9 @@ import express, { type Request, Response, NextFunction } from "express";
 import session from "express-session";
 import { createServer } from "http";
 import path from "path";
-import { registerRoutes } from "./routes";
-import { setupVite, serveStatic, log } from "./vite";
-import { storage } from "./db-storage";
+import { registerRoutes } from "./routes.js";
+import { setupVite, serveStatic, log } from "./vite.js";
+import { storage } from "./db-storage.js";
 
 declare module "express-session" {
   interface SessionData {
