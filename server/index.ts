@@ -21,6 +21,11 @@ app.use(express.urlencoded({ extended: false, limit: '1024mb' }));
 const memorystore = await import("memorystore");
 const MemoryStore = ((memorystore as any).default || memorystore)(session);
 
+// Early non-blocking init for Vercel
+if (process.env.VERCEL) {
+  storage.init().catch(e => log("Early storage init failed: " + e.message));
+}
+
 // Middleware and session setup...
 app.use(
   session({
