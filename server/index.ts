@@ -20,12 +20,12 @@ app.get("/api/health", (_req, res) => res.json({ status: "ok" }));
 app.use(express.json({ limit: '1024mb' }));
 app.use(express.urlencoded({ extended: false, limit: '1024mb' }));
 
-const MemoryStore = (createMemoryStore as any)(session);
-
 // Early non-blocking init for Vercel
 if (process.env.VERCEL) {
   storage.init().catch(e => log("Early storage init failed: " + e.message));
 }
+
+const MemoryStore = (createMemoryStore as any)(session);
 
 // In some Vercel environments, we need more robust path for static assets
 if (!process.env.VERCEL_STATIC_PATH) {

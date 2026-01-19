@@ -1,24 +1,17 @@
 {
     "version": 2,
-    "builds": [
+    "buildCommand": "npm run build",
+    "installCommand": "npm install",
+    "devCommand": "npm run dev",
+    "framework": "vite",
+    "rewrites": [
         {
-            "src": "server/index.ts",
-            "use": "@vercel/node",
-            "config": {
-                "includeFiles": [
-                    "dist/public/**"
-                ]
-            }
-        }
-    ],
-    "routes": [
-        {
-            "src": "/api/(.*)",
-            "dest": "server/index.ts"
+            "source": "/api/:path*",
+            "destination": "/server/index.ts"
         },
         {
-            "src": "/(.*)",
-            "dest": "server/index.ts"
+            "source": "/(.*)",
+            "destination": "/server/index.ts"
         }
     ]
 }
