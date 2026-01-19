@@ -38,15 +38,14 @@ export async function setupVite(app: Express, server: Server) {
   });
 
   app.use(vite.middlewares);
-  app.use("*", async (req, res, next) => {
+  app.use(async (req, res, next) => {
     const url = req.originalUrl;
+    if (url.startsWith("/api")) return next();
 
     try {
       const clientTemplate = path.resolve(__dirname, "..", "index.html");
-
       let template = await fs.promises.readFile(clientTemplate, "utf-8");
       template = await vite.transformIndexHtml(url, template);
-
       res.status(200).set({ "Content-Type": "text/html" }).end(template);
     } catch (e) {
       vite.ssrFixStacktrace(e as Error);
@@ -66,8 +65,8 @@ export function serveStatic(app: Express) {
   }
 
   app.use(express.static(distPath));
-
-  app.use("*", (_req, res) => {
+  app.use((req, res, next) => {
+    if (req.path.startsWith("/api")) return next();
     res.sendFile(path.resolve(distPath, "index.html"));
   });
 }
